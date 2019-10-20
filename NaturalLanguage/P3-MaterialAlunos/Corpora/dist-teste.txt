@@ -1,0 +1,39 @@
+LOCAL_NASC		Onde nasceste?
+CONVITE			Mais tarde queres ir ver o jogo de futebol?
+FAMILIA			Quem é a tua família?
+MORADA			Moras aonde?
+JOB			És estudante ou trabalhador?
+SMALL_TALK		não achas isso um pouco estranho?
+IDADE			Quantos anos tens ?
+GOSTOS			Que género de música é que gostas?
+SMALL_TALK		Podes ajudar-me com isto?
+HABITOS			Costumas sair à noite?
+GOSTOS			Gostas de estudar?
+FAMILIA			Tens irmão ou irmãs?
+SMALL_TALK		Que dia é hoje?
+GOSTOS			gostas de lasanha?
+CONTACTO		Qual é o teu número de telefone?
+GOSTOS			Do que é que tu mais gostas?
+JOB			És aluno do Técnico?
+SMALL_TALK		Se fores sair avisas-me?
+JOB			És estudante?
+JOB			Estudaste?
+LOCAL			De onde é que vens?
+SMALL_TALK		Onde te encontras?
+HABITOS			O que e que gostas de fazer nos tempos livres?
+IDADE			Tens que idade?
+JOB			Onde é que estudaste?
+GOSTOS			Gostas mais de ler ou de ver filmes?
+FAMILIA			Tens algum irmão ou irmã?
+LOCAL			És de onde?
+JOB			Andas na escola?
+GOSTOS			Qual é a tua cor preferida?
+SMALL_TALK		Como correu o dia?
+HABITOS			O que fazes?
+SAUDACAO 		Ola, tudo bem?
+JOB			O que fazes na vida?
+IDADE			Que idade tens?
+GOSTOS			Gostas de ler o quê?
+SAUDACAO		Estás bem?
+JOB			Trabalhas?
+FAMILIA			És casado?

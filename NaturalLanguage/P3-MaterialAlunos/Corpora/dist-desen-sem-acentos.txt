@@ -1,0 +1,33 @@
+GOSTOS			Qual e a tua cor favorita?
+CONVITE			Queres ir para outro lugar?
+SMALL_TALK		Vives sozinho?
+HABITOS			O que fazes nos tempos livres?
+JOB			Trabalhas onde?
+JOB			Qual a tua profissao
+GOSTOS			GOSTAS DO CAMPO?
+CONTACTO		Qual e o teu numero de telemovel?
+HABITOS			Segues algum desporto?
+JOB			Onde estudaste?
+SMALL_TALK		Preciso de direccoes para chegar a Lisboa, sabes me dar?
+JOB			Qual e o teu trabalho?
+SMALL_TALK		Sabes que palacio esta atras de ti?
+GOSTOS			Qual e a tua comida preferida?
+SMALL_TALK		Sabes dancar?
+LOCAL			Qual e a tua nacionalidade?
+GOSTOS			Gostas de musica?
+SMALL_TALK		Achas que hoje vai estar calor?
+GOSTOS			Jogas jogos de video ?
+SMALL_TALK		Quem sao as pessoas atras de ti?
+SAUDACAO		Como estas Filipe?
+CONVITE			Entao, queres sair?
+APELIDO			Qual o teu apelido?
+SMALL_TALK		Onde fizeste esse corte de cabelo?
+NOME			Tu chamas-te como?
+SMALL_TALK		O que e que estamos a fazer?
+GOSTOS			Gosta de cantar, Filipe?
+SMALL_TALK		Tem estado bastante mau tempo, nao tem?
+NOME			O meu nome e Pedro, qual e o teu?
+HABITOS			Quais e que sao os teus hobbies?
+GOSTOS			Qual o seu livro preferido?
+GOSTOS			De trabalhar, gosta?
+JOB			Estuda?

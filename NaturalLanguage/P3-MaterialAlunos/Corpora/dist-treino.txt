@@ -1,0 +1,173 @@
+SMALL_TALK		Sabes cozinhar bem?
+GOSTOS			Gostas de cinema?
+SMALL_TALK		Onde vais assim vestido?
+GOSTOS			Gostas de informática?
+GOSTOS			Que música gostas?
+LOCAL			De onde vens?
+CONVITE			Aceitas tomar café?
+GOSTOS			Gostas de mim?
+SAUDACAO		Tudo bem?
+GOSTOS			Quais são os teus livros favoritos?
+FAMILIA			Tens filhos?
+GOSTOS			Gostas de Praia?
+SMALL_TALK		Qual é a melhor faculdade do país?
+GOSTOS			Gostas de desporto?
+GOSTOS			Gostas de praia?
+SMALL_TALK		Então e esse tempo ?
+SMALL_TALK		Olá Filipe, o que é que fazes?
+GOSTOS			Gostas de sushi?
+GOSTOS			Gostavas de ter filhos?
+SMALL_TALK		Tens fome?
+MORADA			Onde é que moras?
+SMALL_TALK		Onde compras a roupa?
+ANIV			Quando é que nasceste?
+MORADA			Onde moras?
+SMALL_TALK		Para onde vais?
+SMALL_TALK		Como vai o dia?
+SMALL_TALK		O que estás a fazer?
+GOSTOS			Gostas do teu trabalho?
+SMALL_TALK		Posso-te ver outra vez?
+JOB			Onde trabalhas?
+FAMILIA			Como se chama o teu irmão, Filipe?
+GOSTOS			E passatempos preferidos?
+CONTACTO		Dás-me o teu contacto?
+JOB			Andas em que faculdade?
+CONVITE			Queres ir dar uma volta por Lisboa, Filipe?
+JOB			No que trabalhas?
+JOB			O que é que estudas?
+SMALL_TALK		O que gostavas de vir a fazer na tua vida?
+NOME			Como é que te chamas?
+HABITOS			Praticas desporto?
+JOB			Onde é que trabalhas?
+LOCAL			De onde és natural?
+LINGUAS			Sabes falar inglês?
+FAMILIA			A tua familia é numerosa?
+SMALL_TALK		Sou bonito?
+LOCAL_NASC		Nasceste onde?
+APELIDO			Qual é que é o teu apelido, caro Filipe?
+LOCAL			De onde és?
+GOSTOS			Tens algum hobby?
+HABITOS			Quais hobbies?
+FAMILIA			Com quem vives, amigo Filipe?
+FAMILIA			Como se chama a tua mãe, Filipe?
+JOB			Qual é a tua profissão?
+SAUDACAO		Olá, como estás?
+SMALL_TALK		Queres ajuda?
+GOSTOS			Estudo informática. Gostas de informática?
+CONVITE			Queres ir comer um gelado?
+GOSTOS			qual o prato que mais gostas?
+FAMILIA			Tens namorada?
+NOME			Qual o teu nome completo?
+HABITOS			Costumas passar por aqui?
+SMALL_TALK		Já viajaste?
+SMALL_TALK		Em que países já estiveste?
+GOSTOS			Gostas de jogar futebol?
+CONVITE			Amanhã encontramo-nos?
+GOSTOS			Que séries gostas de ver?
+IDADE			Quantos anos tens?
+SMALL_TALK		Onde é que compraste essa roupa?
+GOSTOS			Gostas de ficção científica?
+ANIV			Qual o dia do teu aniversario ?
+GOSTOS			Que país gostavas de visitar?
+SMALL_TALK		O que gostas de fazer?
+MORADA			onde é que moras?
+ANIV			Em que dia nasceste ?
+CONVITE			Queres uma goma?
+SMALL_TALK		o que é que vais fazer esta noite?
+GOSTOS			Gostas de musica clássica?
+SMALL_TALK		O que fazes aqui?
+SAUDACAO		Olá Filipe!
+GOSTOS			Qual é o teu livro favorito?
+GOSTOS			Gostas de trabalhar?
+GOSTOS			Gostas de Senhor dos Anéis?
+GOSTOS			Gostas de animais?
+GOSTOS			Gostas de fazer desporto?
+SAUDACAO		Olá! Como estás?
+JOB			O que é que fazes?
+LINGUAS			Quantas línguas falas?
+JOB			Estudas?
+CONVITE			Queres ir beber um café?
+GOSTOS			Gostas de sair?
+HABITOS			Mudando de assunto, quais são os teus hobbies?
+GOSTOS			Qual é o teu tipo de música favorito?
+GOSTOS			Quais são os teu filmes favoritos?
+SMALL_TALK		Vives sozinho ou com a tua família?
+HABITOS			Costumas ir ao cinema?
+GOSTOS			Gostas de viver em Eastland Heights?
+GOSTOS			Gostavas de ir ao Brasil?
+LINGUAS			Que línguas falas?
+GOSTOS			Que gostas de fazer no teu tempo livre?
+FAMILIA			Tens família?
+SMALL_TALK		Viste o jogo dos New York Knicks?
+GOSTOS			De que tipo de filmes gostas?
+SMALL_TALK		Conheces essas pessoas atrás de ti?
+LINGUAS			Falas quantas línguas?
+JOB			Que disciplinas tens?
+SAUDACAO		Olá, tudo bem?
+GOSTOS			qual é a tua comida preferida?
+JOB			Estudas ou trabalhas?
+GOSTOS			Qual a tua serie de televisão favorita ?
+NOME			Como te chamas, rapaz?
+GOSTOS			Qual é o teu filme favorito?
+CONVITE			Queres ir comer uma sandes?
+JOB			Em que local estudas?
+SMALL_TALK		Quais é que são as tuas maiores qualidades?
+GOSTOS			Qual é o teu desporto favorito?
+SMALL_TALK		Tens um chapéu-de-chuva?
+CONVITE			Queres ir beber café?
+GOSTOS			Que fazes para te divertires?
+SMALL_TALK		Sabes conduzir?
+JOB			Em que trabalhas?
+SAUDACAO		Estás como?
+SMALL_TALK		Estas ai sozinho?
+SMALL_TALK		Que horas são?
+GOSTOS			Qual é o teu clube de futebol preferido?
+IDADE			Qual é a tua idade?
+GOSTOS			Gostas de video jogos?
+SMALL_TALK		O que te trouxe aqui?
+NOME			Como te chamas?
+FAMILIA			Quem são os teus pais?
+LINGUAS			Falas inglês?
+GOSTOS			Tens algum filme favorito?
+GOSTOS			Que tipo de música gostas?
+GOSTOS			Que género de musica?
+SAUDACAO		Tudo bem contigo?
+SMALL_TALK		Como está o tempo?
+NOME			Es o filipe ?
+MORADA			Onde vives?
+HABITOS			Tens algum animal de estimação?
+HABITOS			O que fazes no teu tempo livre?
+SAUDACAO		Estás bom?
+HABITOS			O que fazes nos teus tempos livres?
+GOSTOS			Tens uma cor favorita?
+HABITOS			O que gostas de fazer nos tempos livres?
+GOSTOS			Gostas de chocolate?
+GOSTOS			Quais é que são as tuas bandas favoritas?
+GOSTOS			gostas de morar aí?
+JOB			Onde estudas?
+MORADA			Moras em Lisboa?
+IDADE			Tens quantos anos?
+GOSTOS			De que tipo de músicas gostas?
+HABITOS			Fazes algum desporto?
+GOSTOS			Qual é a tua banda favorita?
+GOSTOS			Gostas de computadores?
+FAMILIA			Tens irmãos?
+LINGUAS			Como aprendeste a falar português?
+SMALL_TALK		Já foste ao Brasil?
+GOSTOS			Que hobbies tens?
+SMALL_TALK		Que achas deste tempo, hein?
+JOB			Onde é que tu trabalhas?
+CONVITE			Queres ir tomar um café?
+SMALL_TALK		Viste o último filme do Woody Allen?
+SMALL_TALK		Tens um euro que me possas emprestar?
+SMALL_TALK		Tens dupla nacionalidade?
+MORADA			onde vives?
+GOSTOS			Gostas de ler?
+GOSTOS			Qual o teu filme favorito ?
+FAMILIA			tens pais?
+LINGUAS			Qual é a tua língua materna?
+LOCAL			És natural de onde?
+GOSTOS			O que é que gostas de fazer?
+LOCAL			É qual a tua nacionalidade?
+SMALL_TALK		O tempo está muito mau
+SMALL_TALK		Sabes cantar, Filipe?
