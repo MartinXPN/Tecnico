@@ -1,0 +1,8 @@
+fire
+scikit-learn
+pandas
+numpy
+nltk
+tqdm
+glob
+xgboost
