@@ -1,0 +1,10 @@
+0   1   o	eps
+1   2   +N  eps
+2   3   +ms o
+2   3   +fs a
+2   3   +mp s
+2   4   +fp a
+4   5   eps s
+3   6   eps eps
+5   6   eps eps
+6
