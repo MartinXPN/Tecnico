@@ -20,7 +20,16 @@ fstdraw    --isymbols=syms.txt --osymbols=syms.txt --portrait FINALtransducers/l
 
 
 # lemma2verb
-fstunion FINALtransducers/lemma2verbip.fst FINALtransducers/lemma2verbis.fst tmp.fst
-fstunion tmp.fst FINALtransducers/lemma2verbif.fst FINALtransducers/lemma2verb.fst
-rm tmp.fst
+fstunion   FINALtransducers/lemma2verbip.fst FINALtransducers/lemma2verbis.fst tmp.fst
+fstunion   tmp.fst FINALtransducers/lemma2verbif.fst FINALtransducers/lemma2verb.fst
+rm         tmp.fst
 fstdraw    --isymbols=syms.txt --osymbols=syms.txt --portrait FINALtransducers/lemma2verb.fst | dot -Tpdf  > FINALpdf/lemma2verb.pdf
+
+# lemma2word
+fstunion   FINALtransducers/lemma2verb.fst FINALtransducers/lemma2noun.fst FINALtransducers/lemma2word.fst
+fstdraw    --isymbols=syms.txt --osymbols=syms.txt --portrait FINALtransducers/lemma2word.fst | dot -Tpdf  > FINALpdf/lemma2word.pdf
+
+
+# word2lemma
+fstinvert  FINALtransducers/lemma2word.fst FINALtransducers/word2lemma.fst
+fstdraw    --isymbols=syms.txt --osymbols=syms.txt --portrait FINALtransducers/word2lemma.fst | dot -Tpdf  > FINALpdf/word2lemma.pdf
