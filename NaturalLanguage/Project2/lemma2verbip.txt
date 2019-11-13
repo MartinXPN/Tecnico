@@ -30,18 +30,20 @@
 2   3   +V  eps
 3   4   +ip eps
 4   10   +1s o
+4   5   +2s a
+5   10  eps s
+4   10  +3s a
 
-0   5   r   eps
-5   6   +V  eps
-6   7   +ip eps
-
-7   10  +2s s
-7   10  +3s eps
-7   8   +1p m
-8   9   eps o
-9   10  eps s
-7   11  +2p i
+4   6   +1p a
+6   7   eps m
+7   11  eps o
 11  10  eps s
-7   10  +3p m
+
+4   8  +2p a
+8   9  eps i
+9   10  eps s
+
+4   12  +3p a
+12  10  eps m
 
 10

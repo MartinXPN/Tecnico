@@ -32,21 +32,30 @@
 
 4   5  +1s  e
 5   10  eps i
-4   6   +3s o
-6   10  eps u
-4   7   +1p á
-7   8   eps m
-8   9   eps o
-9   10  eps s
 
-0   11  r   s
-11  12  +V  t
-12  13  +is e
-13  10  +2s eps
-13  10  +2p s
+4   6   +2s a
+6   7   eps s
+7   8   eps t
+8   10  eps e
 
-0   14  +V  eps
-14  15  +is a
-15  10  +3p m
+4   9   +3s o
+9   10  eps u
+
+
+4   11   +1p á
+11   12   eps m
+12   13   eps o
+13   10  eps s
+
+4   14  +2p a
+14  15  eps s
+15  16  eps t
+16  17  eps e
+17  10  eps s
+
+4   18  +3p a
+18  19  eps r
+19  20  eps a
+20  10  eps m
 
 10
