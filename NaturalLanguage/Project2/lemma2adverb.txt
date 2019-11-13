@@ -24,12 +24,10 @@
 0	0	x	x
 0	0	y	y
 0	0	z	z
-0   1   o	eps
-1   2   +N  eps
-2   4   +ms o
-2   4   +fs a
-2   5   +mp o
-5   4   eps s
-2   3   +fp a
-3   4   eps s
-4
+0   1   m   m
+1   2   e   e
+2   3   n   n
+3   4   t   t
+4   5   e   e
+5   6   +ADV	eps
+6
