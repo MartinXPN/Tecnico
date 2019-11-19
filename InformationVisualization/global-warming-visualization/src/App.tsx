@@ -17,35 +17,12 @@ interface State {
 export default class App extends Component<Props, State> {
 
     componentDidMount(): void {
-        d3.csv('./sea2glaciers.csv', (row: d3.DSVRowString<string>, id: number, columns: string[]) => {
-            return {
-                // @ts-ignore
-                year: new Date(+row.year, 0, 1),
-                // @ts-ignore
-                level: +row.level,
-                // @ts-ignore
-                mass: +row.mass,
-            }
-        }).then(data => {
+        d3.json('./sea2glaciers.json').then(data => {
             this.setState({sea2glaciers: data});
             console.log(data);
         });
 
-        d3.csv('./gdp2temp2meat2ghg.csv', (row: d3.DSVRowString<string>, id: number, columns: string[]) => {
-            return {
-                country: '' + row.country,
-                // @ts-ignore
-                year: new Date(+row.year, 0, 1),
-                // @ts-ignore
-                gdp: +row!.gdp,
-                // @ts-ignore
-                meat_consumption: +row.meat_consumption,
-                // @ts-ignore
-                temperature: +row.temperature,
-                // @ts-ignore
-                ghg_emission: +row.ghg_emission,
-            }
-        }).then(data => {
+        d3.json('./gdp2temp2meat2ghg.json').then(data => {
             this.setState({data: data});
             console.log(data);
         });
