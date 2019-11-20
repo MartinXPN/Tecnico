@@ -3,6 +3,7 @@ import './App.css';
 import * as d3 from 'd3'
 import TimeSlider from "./sliders/TimeSlider";
 import SplitPane from 'react-split-pane';
+import Map from "./map/Map";
 
 interface Props {
 }
@@ -33,8 +34,11 @@ export default class App extends Component<Props, State> {
         return (
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                 <div />
-                <div className="Time-slider">
-                    <TimeSlider />
+                <div style={{width: '100%', height: '100%'}}>
+                    <div className="Time-slider">
+                        <TimeSlider />
+                    </div>
+                    <Map width='100%' height='100%' />
                 </div>
             </SplitPane>
         );

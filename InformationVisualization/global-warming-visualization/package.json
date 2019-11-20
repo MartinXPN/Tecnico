@@ -15,6 +15,7 @@
     "react-scripts": "3.2.0",
     "react-split-pane": "^0.1.89",
     "styled-components": "^4.4.1",
+    "topojson": "^3.0.2",
     "typescript": "3.7.2"
   },
   "scripts": {
@@ -39,6 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@types/d3": "^5.7.2"
+    "@types/d3": "^5.7.2",
+    "@types/topojson": "^3.2.2"
   }
 }
