@@ -6,13 +6,14 @@ import SplitPane from 'react-split-pane';
 import Map from "./map/Map";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
+import CircleBarChart from "./charts/CircleBarChart";
 
 interface Props {
 }
 
 interface State {
-    sea2glaciers: d3.DSVParsedArray<{ year: Date, level: number, mass: number }> | undefined;
-    data: d3.DSVParsedArray<{ country: string, year: Date, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
+    sea2glaciers: d3.DSVParsedArray<{ year: number, level: number, mass: number }> | undefined;
+    data: d3.DSVParsedArray<{ country: string, year: number, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
     yearStart: number;
     yearEnd: number;
     selectedCountries: Array<string>;
@@ -45,7 +46,9 @@ export default class App extends Component<Props, State> {
         return (
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                 <div style={{width: '100%', height: '100%'}}>
-                    <div className="chart-box" />
+                    <div className="chart-box">
+                        <CircleBarChart width='100%' height='100%' data={this.state.sea2glaciers} yearStart={this.state.yearStart} yearEnd={this.state.yearEnd}/>
+                    </div>
                     <div className="chart-box">
                         <BubbleChart width='100%' height='100%' data={this.state.data}/>
                     </div>

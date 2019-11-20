@@ -4,7 +4,7 @@ import * as d3 from "d3";
 interface Props {
     width: number | string;
     height: number | string;
-    data: d3.DSVParsedArray<{ country: string, year: Date, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
+    data: d3.DSVParsedArray<{ country: string, year: number, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
 }
 
 export default class BubbleChart extends Component<Props> {
