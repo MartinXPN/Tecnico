@@ -5,6 +5,7 @@ import TimeSlider from "./sliders/TimeSlider";
 import SplitPane from 'react-split-pane';
 import Map from "./map/Map";
 import ScatterPlot from "./charts/ScatterPlot";
+import BubbleChart from "./charts/BubbleChart";
 
 interface Props {
 }
@@ -45,7 +46,9 @@ export default class App extends Component<Props, State> {
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                 <div style={{width: '100%', height: '100%'}}>
                     <div className="chart-box" />
-                    <div className="chart-box" />
+                    <div className="chart-box">
+                        <BubbleChart width='100%' height='100%' data={this.state.data}/>
+                    </div>
                     <div className="chart-box">
                         <ScatterPlot width='100%' height='100%' data={this.state.data}/>
                     </div>

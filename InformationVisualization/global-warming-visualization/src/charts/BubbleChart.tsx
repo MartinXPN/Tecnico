@@ -7,7 +7,7 @@ interface Props {
     data: d3.DSVParsedArray<{ country: string, year: Date, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
 }
 
-export default class ScatterPlot extends Component<Props> {
+export default class BubbleChart extends Component<Props> {
     // @ts-ignore
     ref: SVGSVGElement;
 
@@ -21,7 +21,9 @@ export default class ScatterPlot extends Component<Props> {
         const w = rect.width;
         const h = rect.height;
         const padding = rect.width / 10;
-        const dataset = this.props.data.map(row => [row.ghg_emission, row.temperature]);
+        const dataset = this.props.data.map(row => [row.gdp, row.meat_consumption, row.ghg_emission]);
+        // @ts-ignore
+        const biggestBubble: number = d3.max(dataset, d => d[2]);
 
         const xScale = d3.scaleLinear()
             // @ts-ignore
@@ -43,8 +45,8 @@ export default class ScatterPlot extends Component<Props> {
             .append("circle")
             .attr("cx", d => xScale(d[0]))
             .attr("cy", d => h - yScale(d[1]))
-            .attr("r", 2)
-            .attr("fill", "green");
+            .attr("r", d => 20 * d[2] / biggestBubble)
+            .attr("fill", "blue");
 
         //x axis
         svg.append("g")
