@@ -31,7 +31,7 @@ export default class Map extends Component<Props> {
         });
     }
 
-    render() {
+    render(): React.ReactElement {
         return (
             <svg className="container"
                  ref={(ref: SVGSVGElement) => this.ref = ref}
