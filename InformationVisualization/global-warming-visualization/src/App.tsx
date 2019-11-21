@@ -6,7 +6,7 @@ import SplitPane from 'react-split-pane';
 import Map from "./map/Map";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
-import CircleBarChart from "./charts/CircleBarChart";
+import RadialBarChart from "./charts/RadialBarChart";
 
 interface Props {
 }
@@ -42,12 +42,19 @@ export default class App extends Component<Props, State> {
     }
 
     render(): React.ReactElement {
-        console.log(this.state);
+        console.log('State:', this.state);
         return (
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                 <div style={{width: '100%', height: '100%'}}>
                     <div className="chart-box">
-                        <CircleBarChart width='100%' height='100%' data={this.state.sea2glaciers} yearStart={this.state.yearStart} yearEnd={this.state.yearEnd}/>
+                        {this.state.sea2glaciers &&
+                        <RadialBarChart
+                            width='100%' height='100%'
+                            // @ts-ignore
+                            data={this.state.sea2glaciers}
+                            yearStart={this.state.yearStart}
+                            yearEnd={this.state.yearEnd}
+                        />}
                     </div>
                     <div className="chart-box">
                         <BubbleChart width='100%' height='100%' data={this.state.data}/>
@@ -59,9 +66,13 @@ export default class App extends Component<Props, State> {
 
                 <div style={{width: '100%', height: '100%'}}>
                     <div className="Time-slider">
-                        <TimeSlider />
+                        <TimeSlider
+                            initialValues={[this.state.yearStart, this.state.yearEnd]}
+                            updateValues={(newValues: number[]) => {
+                                this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
+                            }}/>
                     </div>
-                    <Map width='100%' height='100%' />
+                    <Map width='100%' height='100%'/>
                 </div>
             </SplitPane>
         );

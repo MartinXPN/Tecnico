@@ -1,6 +1,7 @@
 import {Slider, Rail, Handles, Tracks, Ticks} from 'react-compound-slider';
 import { Handle, Track, Tick } from './components';
 import React from "react";
+import _ from "lodash";
 
 
 const sliderStyle: React.CSSProperties = {
@@ -21,13 +22,20 @@ const railStyle: React.CSSProperties = {
 
 const domain: number[] = [1970, 2014];
 
-export default class TimeSlider extends React.Component {
+interface Props {
+    updateValues: (values: number[]) => void;
+    initialValues: number[];
+}
+
+export default class TimeSlider extends React.Component<Props> {
     public state = {
-        values: [1990, 2010]
+        values: this.props.initialValues,
     };
 
     public onChange = (values: number[]) => {
         this.setState({ values });
+        if( !_.isEqual(this.state.values, values) )
+            this.props.updateValues(values);
     };
 
     public render() {
@@ -43,7 +51,7 @@ export default class TimeSlider extends React.Component {
                     domain={domain}
                     rootStyle={sliderStyle}
                     // @ts-ignore
-                    onChange={this.onChange}
+                    onUpdate={this.onChange}
                     values={values}>
                     <Rail>
                         {({ getRailProps }) => (

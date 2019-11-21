@@ -4,7 +4,7 @@ import * as d3 from "d3";
 interface Props {
     width: number | string;
     height: number | string;
-    data: d3.DSVParsedArray<{ year: number, level: number, mass: number }> | undefined;
+    data: d3.DSVParsedArray<{ year: number, level: number, mass: number }>;
     yearStart: number;
     yearEnd: number;
 }
@@ -23,19 +23,17 @@ function scaleRadial(domain: number[], range: number[]) {
     return scale;
 }
 
-export default class CircleBarChart extends Component<Props> {
+export default class RadialBarChart extends Component<Props> {
     // @ts-ignore
     private ref: SVGSVGElement;
     private seaLevelElements: any;
     private glacierElements: any;
 
-    addRadialChart = <T extends unknown>(svg: d3.Selection<SVGGElement, unknown, null, undefined>,
+    addRadialChart = <T extends unknown>(elementSet: any,
                                          innerRadius: number, outerRadius: number,
                                          color: string, range: number[],
                                          data: d3.DSVParsedArray<T>,
                                          getValue: (d: any) => number, getX: (d: any) => number) => {
-        if (!data)
-            return;
 
         const smallest = d3.min(data, getValue);
         const largest = d3.max(data, getValue);
@@ -50,12 +48,6 @@ export default class CircleBarChart extends Component<Props> {
             [innerRadius, outerRadius]
         );
 
-        const elementSet = svg.append("g")
-            .selectAll("path")
-            .data(data)
-            .enter()
-            .append("path");
-
         elementSet.attr("fill", color)
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
@@ -67,26 +59,42 @@ export default class CircleBarChart extends Component<Props> {
                 .startAngle(d => {return x("" + getX(d));}).endAngle(d => {return x("" + getX(d)) + x.bandwidth();})
                 .padAngle(0.01)
                 .padRadius(innerRadius));
-        return elementSet;
     };
 
-    componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
-        if (!this.props.data || prevProps.data)
-            return;
-
+    componentDidMount(): void {
         const rect = this.ref.getBoundingClientRect();
         const w = rect.width;
         const h = rect.height;
+        console.log(h, w);
+        console.log(this.props.data);
 
         const svg = d3.select(this.ref)
             .append("g")
             .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")"); // Add 100 on Y translation, cause upper bars are longer;
 
-        const innerRadius = w / 3;
+        this.seaLevelElements = svg.append("g")
+            .selectAll("path")
+            .data(this.props.data)
+            .enter()
+            .append("path");
+
+        this.glacierElements = svg.append("g")
+            .selectAll("path")
+            .data(this.props.data)
+            .enter()
+            .append("path");
+    }
+
+    componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+        const rect = this.ref.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+
+        const innerRadius = Math.min(w, h) / 4;
         const outerRadius = Math.min(w, h) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
-        this.seaLevelElements = this.addRadialChart(svg, innerRadius, outerRadius, "#1484b3", [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
-        this.glacierElements =this.addRadialChart(svg, innerRadius, outerRadius, "#b32019", [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
+        this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, "#1484b3", [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
+        this.addRadialChart(this.glacierElements, innerRadius, outerRadius, "#b32019", [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
     }
 
     render(): React.ReactElement {
