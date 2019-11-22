@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import * as d3 from "d3";
+import {SeaGlaciersData as Data}  from "../entities";
 
 interface Props {
     width: number | string;
     height: number | string;
-    data: d3.DSVParsedArray<{ year: number, level: number, mass: number }>;
+    data: d3.DSVParsedArray<Data>;
     yearStart: number;
     yearEnd: number;
 }
@@ -26,14 +27,14 @@ function scaleRadial(domain: number[], range: number[]) {
 export default class RadialBarChart extends Component<Props> {
     // @ts-ignore
     private ref: SVGSVGElement;
-    private seaLevelElements: any;
-    private glacierElements: any;
+    private seaLevelElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
+    private glacierElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
 
-    addRadialChart = <T extends unknown>(elementSet: any,
-                                         innerRadius: number, outerRadius: number,
-                                         color: string, range: number[],
-                                         data: d3.DSVParsedArray<T>,
-                                         getValue: (d: any) => number, getX: (d: any) => number) => {
+    addRadialChart = (elementSet: d3.Selection<SVGPathElement, Data, SVGElement, unknown>,
+                      innerRadius: number, outerRadius: number,
+                      color: string, range: number[],
+                      data: d3.DSVParsedArray<Data>,
+                      getValue: (d: any) => number, getX: (d: any) => number) => {
 
         const smallest = d3.min(data, getValue);
         const largest = d3.max(data, getValue);
@@ -49,16 +50,17 @@ export default class RadialBarChart extends Component<Props> {
         );
 
         elementSet.attr("fill", color)
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
                 .innerRadius(innerRadius)
-                .outerRadius(d => {
-                    // @ts-ignore
-                    return (getX(d) < this.props.yearStart || getX(d) > this.props.yearEnd) ? y(smallest) : y(getValue(d));
-                })
+                .outerRadius(d => y(getValue(d)))
                 // @ts-ignore
                 .startAngle(d => {return x("" + getX(d));}).endAngle(d => {return x("" + getX(d)) + x.bandwidth();})
                 .padAngle(0.01)
-                .padRadius(innerRadius));
+                .padRadius(innerRadius)
+            )
+            .transition().duration(100)
+            // hide or show opacity = 1 => show, opacity = 0 => hide
+            .style("opacity", d => this.props.yearStart <= getX(d) && getX(d) <= this.props.yearEnd ? 1 : 0.1);
     };
 
     componentDidMount(): void {
@@ -93,8 +95,10 @@ export default class RadialBarChart extends Component<Props> {
         const innerRadius = Math.min(w, h) / 4;
         const outerRadius = Math.min(w, h) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
-        this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, "#1484b3", [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
-        this.addRadialChart(this.glacierElements, innerRadius, outerRadius, "#b32019", [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
+        if( this.seaLevelElements && this.glacierElements ) {
+            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, "#1484b3", [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
+            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, "#b32019", [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
+        }
     }
 
     render(): React.ReactElement {

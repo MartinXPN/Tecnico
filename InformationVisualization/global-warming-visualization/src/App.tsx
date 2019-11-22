@@ -7,13 +7,16 @@ import Map from "./map/Map";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
 import RadialBarChart from "./charts/RadialBarChart";
+import {SeaGlaciersData}  from "./entities";
+import {GdpTemperatureMeatGhgData} from "./entities";
+
 
 interface Props {
 }
 
 interface State {
-    sea2glaciers: d3.DSVParsedArray<{ year: number, level: number, mass: number }> | undefined;
-    data: d3.DSVParsedArray<{ country: string, year: number, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
+    sea2glaciers: d3.DSVParsedArray<SeaGlaciersData> | undefined;
+    data: d3.DSVParsedArray<GdpTemperatureMeatGhgData> | undefined;
     yearStart: number;
     yearEnd: number;
     selectedCountries: Array<string>;
