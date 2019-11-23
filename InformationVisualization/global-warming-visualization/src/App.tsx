@@ -7,7 +7,7 @@ import Map from "./map/Map";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
 import RadialBarChart from "./charts/RadialBarChart";
-import {SeaGlaciersData}  from "./entities";
+import {SeaGlaciersData} from "./entities";
 import {GdpTemperatureMeatGhgData} from "./entities";
 
 
@@ -19,7 +19,7 @@ interface State {
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData> | undefined;
     yearStart: number;
     yearEnd: number;
-    selectedCountries: Array<string>;
+    selectedCountries: Set<string>;
 }
 
 export default class App extends Component<Props, State> {
@@ -29,7 +29,7 @@ export default class App extends Component<Props, State> {
         data: undefined,
         yearStart: 1970,
         yearEnd: 2014,
-        selectedCountries: [],
+        selectedCountries: new Set(['Armenia', 'Portugal', 'United States']),
     };
 
     componentDidMount(): void {
@@ -60,10 +60,23 @@ export default class App extends Component<Props, State> {
                         />}
                     </div>
                     <div className="chart-box">
-                        <BubbleChart width='100%' height='100%' data={this.state.data}/>
+                        {this.state.data && false &&
+                        <BubbleChart
+                            width='100%' height='100%'
+                            // @ts-ignore
+                            data={this.state.data}
+                        />}
                     </div>
                     <div className="chart-box">
-                        <ScatterPlot width='100%' height='100%' data={this.state.data}/>
+                        {this.state.data &&
+                        <ScatterPlot
+                            width='100%' height='100%'
+                            // @ts-ignore
+                            data={this.state.data}
+                            yearStart={this.state.yearStart}
+                            yearEnd={this.state.yearEnd}
+                            selectedCountries={this.state.selectedCountries}
+                        />}
                     </div>
                 </div>
 
