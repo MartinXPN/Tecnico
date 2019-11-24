@@ -46,7 +46,7 @@ export default class App extends Component<Props, State> {
         });
     }
 
-    updateHoveredCountry = (country: string | undefined) => {this.setState({hoveredCountry: country})};
+    updateHoveredCountry = (country: string | undefined) => {console.log('Hover:', country);this.setState({hoveredCountry: country})};
     selectCountry = (country: string) => {this.setState({selectedCountries: new Set([country])})};
     addCountry = (country: string) => {this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})};
     removeCountry = (country: string) => {
@@ -109,7 +109,13 @@ export default class App extends Component<Props, State> {
                                 this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
                             }}/>
                     </div>
-                    <Map width='100%' height='100%'/>
+                    <Map width='100%' height='100%'
+                         selectedCountries={this.state.selectedCountries}
+                         addCountry={this.addCountry}
+                         removeCountry={this.removeCountry}
+                         hoverCountry={this.updateHoveredCountry}
+                         currentHoveredCountry={this.state.hoveredCountry}
+                    />
                 </div>
             </SplitPane>
         );

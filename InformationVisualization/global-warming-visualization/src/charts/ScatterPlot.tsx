@@ -140,7 +140,7 @@ export default class ScatterPlot extends Component<Props, State> {
                 this.tooltip.style("visibility", "hidden");
             })
             .on("click", () => this.props.selectCountry(country))
-            .transition().duration(250)
+            .transition().duration(150)
             .attr('cx', this.xScale(this.getX(dataPoint)))
             .attr('cy', h - this.yScale(this.getY(dataPoint)))
             .attr('r', hoverFactor * 4)
