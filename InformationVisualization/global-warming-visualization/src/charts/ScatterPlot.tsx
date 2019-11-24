@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import * as d3 from "d3";
 import {GdpTemperatureMeatGhgData} from "../entities";
+import * as _ from "lodash";
 
 export interface Props {
     width: number | string;
@@ -9,6 +10,7 @@ export interface Props {
     yearStart: number;
     yearEnd: number;
     selectedCountries: Set<string>;
+    selectCountry: (country: string) => void;
 }
 
 interface State {
@@ -30,7 +32,6 @@ export default class ScatterPlot extends Component<Props, State> {
 
     state = {
         countriesDisplayed: new Set<string>(),
-        countryToData: new Map<string, Map<number, GdpTemperatureMeatGhgData>>(),
     };
 
     constructor(props: Props) {
@@ -131,6 +132,7 @@ export default class ScatterPlot extends Component<Props, State> {
             })
             .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on("mouseout", () => this.tooltip.style("visibility", "hidden"))
+            .on("click", () => this.props.selectCountry(country))
             .transition().duration(250)
             .attr('cx', this.xScale(this.getX(dataPoint)))
             .attr('cy', h - this.yScale(this.getY(dataPoint)))
@@ -142,7 +144,8 @@ export default class ScatterPlot extends Component<Props, State> {
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
         const h = this.ref.getBoundingClientRect().height;
         const svg = d3.select(this.ref);
-        console.log(this.props);
+        console.log('Props:', this.props);
+        console.log('State:', this.state);
 
         // remove old countries
         this.state.countriesDisplayed.forEach(country => {
@@ -167,6 +170,9 @@ export default class ScatterPlot extends Component<Props, State> {
             this.handleCountryYear(svg, start, country, 'yearStart', "green", h);
             this.handleCountryYear(svg, end, country, 'yearEnd', "red", h);
         });
+
+        if(!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
+            this.setState({countriesDisplayed: this.props.selectedCountries});
     }
 
     render(): React.ReactElement {

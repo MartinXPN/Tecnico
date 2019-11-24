@@ -32,6 +32,7 @@ export default class BubbleChart extends ScatterPlot {
             })
             .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on("mouseout", () => this.tooltip.style("visibility", "hidden"))
+            .on("click", () => this.props.selectCountry(country))
             .transition().duration(250)
             .attr('cx', this.xScale(dataPoint.gdp))
             .attr('cy', h - this.yScale(dataPoint.meat_consumption))

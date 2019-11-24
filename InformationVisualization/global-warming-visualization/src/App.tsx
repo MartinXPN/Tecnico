@@ -44,6 +44,15 @@ export default class App extends Component<Props, State> {
         });
     }
 
+    selectCountry = (country: string) => {this.setState({selectedCountries: new Set([country])})};
+    addCountry = (country: string) => {this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})};
+    removeCountry = (country: string) => {
+        const selectedCountries = new Set(Array.from(this.state.selectedCountries));
+        selectedCountries.delete(country);
+        this.setState({selectedCountries: selectedCountries});
+    };
+
+
     render(): React.ReactElement {
         return (
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
@@ -67,6 +76,7 @@ export default class App extends Component<Props, State> {
                             yearStart={this.state.yearStart}
                             yearEnd={this.state.yearEnd}
                             selectedCountries={this.state.selectedCountries}
+                            selectCountry={this.selectCountry}
                         />}
                     </div>
                     <div className="chart-box">
@@ -78,6 +88,7 @@ export default class App extends Component<Props, State> {
                             yearStart={this.state.yearStart}
                             yearEnd={this.state.yearEnd}
                             selectedCountries={this.state.selectedCountries}
+                            selectCountry={this.selectCountry}
                         />}
                     </div>
                 </div>
