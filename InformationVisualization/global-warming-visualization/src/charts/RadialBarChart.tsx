@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import * as d3 from "d3";
-import {SeaGlaciersData as Data}  from "../entities";
+import {SeaGlaciersData as Data} from "../entities";
 
 interface Props {
     width: number | string;
@@ -25,6 +25,8 @@ function scaleRadial(domain: number[], range: number[]) {
 }
 
 export default class RadialBarChart extends Component<Props> {
+    private static SEA_LEVEL_COLOR = "#1484b3";
+    private static GLACIER_MASS_COLOR = "#b32019";
     // @ts-ignore
     private ref: SVGSVGElement;
     private seaLevelElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
@@ -59,7 +61,7 @@ export default class RadialBarChart extends Component<Props> {
                 .padRadius(innerRadius)
             )
             .transition().duration(100)
-            // hide or show opacity = 1 => show, opacity = 0 => hide
+        // hide or show opacity = 1 => show, opacity = 0 => hide
             .style("opacity", d => this.props.yearStart <= getX(d) && getX(d) <= this.props.yearEnd ? 1 : 0.1);
     };
 
@@ -67,10 +69,28 @@ export default class RadialBarChart extends Component<Props> {
         const rect = this.ref.getBoundingClientRect();
         const w = rect.width;
         const h = rect.height;
+        console.log(h);
 
         const svg = d3.select(this.ref)
             .append("g")
-            .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")"); // Add 100 on Y translation, cause upper bars are longer;
+            .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
+
+        svg.append("text")
+            .attr("transform", "translate(0," + (-h / 15) + ")")
+            .style("text-anchor", "middle")
+            .text("Sea level")
+            .attr('font-size', '13px')
+            .attr('font-weight', 'bold')
+            .style("fill", RadialBarChart.SEA_LEVEL_COLOR);
+
+        svg.append("text")
+            .attr("transform", "translate(0," + (h / 15) + ")")
+            .style("text-anchor", "middle")
+            .text("Glaciers mass")
+            .attr('font-size', '13px')
+            .attr('font-weight', 'bold')
+            .style("fill", RadialBarChart.GLACIER_MASS_COLOR);
+
 
         this.seaLevelElements = svg.append("g")
             .selectAll("path")
@@ -93,9 +113,9 @@ export default class RadialBarChart extends Component<Props> {
         const innerRadius = Math.min(w, h) / 4;
         const outerRadius = Math.min(w, h) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
-        if( this.seaLevelElements && this.glacierElements ) {
-            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, "#1484b3", [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
-            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, "#b32019", [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
+        if (this.seaLevelElements && this.glacierElements) {
+            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, RadialBarChart.SEA_LEVEL_COLOR, [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
+            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, RadialBarChart.GLACIER_MASS_COLOR, [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
         }
     }
 
