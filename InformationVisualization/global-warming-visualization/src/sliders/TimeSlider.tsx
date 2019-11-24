@@ -20,11 +20,11 @@ const railStyle: React.CSSProperties = {
 };
 
 
-const domain: number[] = [1970, 2014];
 
 interface Props {
     updateValues: (values: number[]) => void;
     initialValues: number[];
+    domain: number[];
 }
 
 export default class TimeSlider extends React.Component<Props> {
@@ -48,7 +48,7 @@ export default class TimeSlider extends React.Component<Props> {
                 <Slider
                     mode={3}
                     step={1}
-                    domain={domain}
+                    domain={this.props.domain}
                     rootStyle={sliderStyle}
                     // @ts-ignore
                     onUpdate={this.onChange}
@@ -65,7 +65,7 @@ export default class TimeSlider extends React.Component<Props> {
                                     <Handle
                                         key={handle.id}
                                         handle={handle}
-                                        domain={domain}
+                                        domain={this.props.domain}
                                         getHandleProps={getHandleProps}/>
                                 ))}
                             </div>

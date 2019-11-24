@@ -45,7 +45,6 @@ export default class App extends Component<Props, State> {
     }
 
     render(): React.ReactElement {
-        console.log('State:', this.state);
         return (
             <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                 <div style={{width: '100%', height: '100%'}}>
@@ -83,6 +82,7 @@ export default class App extends Component<Props, State> {
                 <div style={{width: '100%', height: '100%'}}>
                     <div className="Time-slider">
                         <TimeSlider
+                            domain={[1950, 2014]}
                             initialValues={[this.state.yearStart, this.state.yearEnd]}
                             updateValues={(newValues: number[]) => {
                                 this.setState({yearStart: newValues[0], yearEnd: newValues[1]})

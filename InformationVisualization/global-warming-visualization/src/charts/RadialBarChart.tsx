@@ -67,8 +67,6 @@ export default class RadialBarChart extends Component<Props> {
         const rect = this.ref.getBoundingClientRect();
         const w = rect.width;
         const h = rect.height;
-        console.log(h, w);
-        console.log(this.props.data);
 
         const svg = d3.select(this.ref)
             .append("g")
