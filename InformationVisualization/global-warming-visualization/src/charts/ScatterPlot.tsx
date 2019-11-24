@@ -11,6 +11,8 @@ export interface Props {
     yearEnd: number;
     selectedCountries: Set<string>;
     selectCountry: (country: string) => void;
+    hoverCountry: (country: string | undefined) => void;
+    currentHoveredCountry: string | undefined;
 }
 
 interface State {
@@ -125,20 +127,26 @@ export default class ScatterPlot extends Component<Props, State> {
             return;
         }
 
+        const hoverFactor = this.props.currentHoveredCountry === country ? 1.5 : 1;
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
+                this.props.hoverCountry(country);
                 this.tooltip.style("visibility", "visible");
                 this.tooltip.html(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>${dataPoint.temperature}℃ average yearly temperature</div>`);
             })
             .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-            .on("mouseout", () => this.tooltip.style("visibility", "hidden"))
+            .on("mouseout", () => {
+                this.props.hoverCountry(undefined);
+                this.tooltip.style("visibility", "hidden");
+            })
             .on("click", () => this.props.selectCountry(country))
             .transition().duration(250)
             .attr('cx', this.xScale(this.getX(dataPoint)))
             .attr('cy', h - this.yScale(this.getY(dataPoint)))
-            .attr('r', 4)
+            .attr('r', hoverFactor * 4)
             .attr("fill", color)
-            .attr('visibility', 'visible');
+            .attr('visibility', 'visible')
+            .attr('opacity', this.props.currentHoveredCountry === country ? 1 : 0.8);
     };
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {

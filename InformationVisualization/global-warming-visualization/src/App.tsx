@@ -20,6 +20,7 @@ interface State {
     yearStart: number;
     yearEnd: number;
     selectedCountries: Set<string>;
+    hoveredCountry: string | undefined;
 }
 
 export default class App extends Component<Props, State> {
@@ -30,6 +31,7 @@ export default class App extends Component<Props, State> {
         yearStart: 1970,
         yearEnd: 2014,
         selectedCountries: new Set(['Armenia', 'Portugal', 'United States']),
+        hoveredCountry: undefined,
     };
 
     componentDidMount(): void {
@@ -44,6 +46,7 @@ export default class App extends Component<Props, State> {
         });
     }
 
+    updateHoveredCountry = (country: string | undefined) => {this.setState({hoveredCountry: country})};
     selectCountry = (country: string) => {this.setState({selectedCountries: new Set([country])})};
     addCountry = (country: string) => {this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})};
     removeCountry = (country: string) => {
@@ -77,6 +80,8 @@ export default class App extends Component<Props, State> {
                             yearEnd={this.state.yearEnd}
                             selectedCountries={this.state.selectedCountries}
                             selectCountry={this.selectCountry}
+                            hoverCountry={this.updateHoveredCountry}
+                            currentHoveredCountry={this.state.hoveredCountry}
                         />}
                     </div>
                     <div className="chart-box">
@@ -89,6 +94,8 @@ export default class App extends Component<Props, State> {
                             yearEnd={this.state.yearEnd}
                             selectedCountries={this.state.selectedCountries}
                             selectCountry={this.selectCountry}
+                            hoverCountry={this.updateHoveredCountry}
+                            currentHoveredCountry={this.state.hoveredCountry}
                         />}
                     </div>
                 </div>
