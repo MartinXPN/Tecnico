@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import * as d3 from "d3";
 import {GdpTemperatureMeatGhgData} from "../entities";
 
-interface Props {
+export interface Props {
     width: number | string;
     height: number | string;
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData>;
@@ -18,13 +18,15 @@ interface State {
 export default class ScatterPlot extends Component<Props, State> {
     private readonly countryToData: Map<string, Map<number, GdpTemperatureMeatGhgData>>;
     // @ts-ignore
-    private ref: SVGSVGElement;
+    protected ref: SVGSVGElement;
     // @ts-ignore
-    private xScale: d3.ScaleLinear<number, number>;
+    protected xScale: d3.ScaleLinear<number, number>;
     // @ts-ignore
-    private yScale: d3.ScaleLinear<number, number>;
+    protected yScale: d3.ScaleLinear<number, number>;
     // @ts-ignore
-    private tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+    protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+    protected xLabel = 'GHG Emissions';
+    protected yLabel = 'Temperature ℃';
 
     state = {
         countriesDisplayed: new Set<string>(),
@@ -45,6 +47,9 @@ export default class ScatterPlot extends Component<Props, State> {
         console.log(this.countryToData);
     }
 
+    getX = (d: GdpTemperatureMeatGhgData) => d.ghg_emission;
+    getY = (d: GdpTemperatureMeatGhgData) => d.temperature;
+
     componentDidMount(): void {
         const svg = d3.select(this.ref);
         const rect = this.ref.getBoundingClientRect();
@@ -55,16 +60,22 @@ export default class ScatterPlot extends Component<Props, State> {
 
         this.xScale = d3.scaleLinear()
         // @ts-ignore
-            .domain([d3.min(this.props.data, d => d.ghg_emission), d3.max(this.props.data, d => d.ghg_emission)])
+            .domain([d3.min(this.props.data, d => this.getX(d)), d3.max(this.props.data, d => this.getX(d))])
             .range([padding, w - padding * 2]);
 
         this.yScale = d3.scaleLinear()
         // @ts-ignore
-            .domain([d3.min(this.props.data, d => d.temperature), d3.max(this.props.data, d => d.temperature)])
+            .domain([d3.min(this.props.data, d => this.getY(d)), d3.max(this.props.data, d => this.getY(d))])
             .range([h - padding, padding]);
 
+        const largestX = d3.max(this.props.data, this.getX);
         // @ts-ignore
-        const xAxis = d3.axisBottom(this.xScale).ticks(5).tickFormat((val: number, _id: number) => '' + Math.round(val / 1000000) + 'M');
+        const xAxis = d3.axisBottom(this.xScale).ticks(5).tickFormat((val: number, id: number) => {
+            if(!largestX) return id;
+            if(largestX > 5 * Math.pow(10, 6)) return '' + Math.round(val / 1000000) + 'M';
+            if(largestX > 5 * Math.pow(10, 3)) return '' + Math.round(val / 1000) + 'K';
+            return '' + val;
+        });
         const yAxis = d3.axisLeft(this.yScale).ticks(5);
 
         //x axis
@@ -75,7 +86,7 @@ export default class ScatterPlot extends Component<Props, State> {
         svg.append("text")
             .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h - 15) + ")")
             .style("text-anchor", "middle")
-            .text("GHG Emissions")
+            .text(this.xLabel)
             .attr('font-size', '12px');
 
         //y axis
@@ -89,7 +100,7 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr("x", -h / 2)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
-            .text("Temperature ℃")
+            .text(this.yLabel)
             .attr('font-size', '12px');
 
 
@@ -121,11 +132,11 @@ export default class ScatterPlot extends Component<Props, State> {
             .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on("mouseout", () => this.tooltip.style("visibility", "hidden"))
             .transition().duration(250)
-            .attr('cx', this.xScale(dataPoint ? dataPoint.ghg_emission : 0))
-            .attr('cy', h - this.yScale(dataPoint ? dataPoint.temperature : 0))
+            .attr('cx', this.xScale(this.getX(dataPoint)))
+            .attr('cy', h - this.yScale(this.getY(dataPoint)))
             .attr('r', 4)
             .attr("fill", color)
-            .attr('visibility', dataPoint ? 'visible' : 'hidden');
+            .attr('visibility', 'visible');
     };
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {

@@ -1,73 +1,42 @@
-import React, {Component} from "react";
 import * as d3 from "d3";
+import ScatterPlot, {Props} from "./ScatterPlot";
+import {GdpTemperatureMeatGhgData} from "../entities";
 
-interface Props {
-    width: number | string;
-    height: number | string;
-    data: d3.DSVParsedArray<{ country: string, year: number, gdp: number, meat_consumption: number, temperature: number, ghg_emission: number }> | undefined;
-}
 
-export default class BubbleChart extends Component<Props> {
-    // @ts-ignore
-    ref: SVGSVGElement;
+export default class BubbleChart extends ScatterPlot {
 
-    componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
-        if (!this.props.data)
+    constructor(props: Props) {
+        super(props);
+
+        this.xLabel = 'GDP per-capita';
+        this.yLabel = 'Meat consumption per-capita';
+    }
+
+    getX = (d: GdpTemperatureMeatGhgData) => d.gdp;
+    getY = (d: GdpTemperatureMeatGhgData) => d.meat_consumption;
+
+
+    handleCountryYear = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+                         dataPoint: (GdpTemperatureMeatGhgData | undefined),
+                         country: string, identifier: string,
+                         color: string, h: number) => {
+        if(!dataPoint) {
+            svg.select(`circle[title='${identifier}-${country}']`).attr('visibility', 'hidden');
             return;
+        }
 
-        const svg = d3.select(this.ref);
-        const rect = this.ref.getBoundingClientRect();
-
-        const w = rect.width;
-        const h = rect.height;
-        const padding = rect.width / 10;
-        const dataset = this.props.data.map(row => [row.gdp, row.meat_consumption, row.ghg_emission]);
-        // @ts-ignore
-        const biggestBubble: number = d3.max(dataset, d => d[2]);
-
-        const xScale = d3.scaleLinear()
-            // @ts-ignore
-            .domain([d3.min(dataset, d => d[0]), d3.max(dataset, d => d[0])])
-            .range([padding, w - padding * 2]);
-
-        const yScale = d3.scaleLinear()
-            // @ts-ignore
-            .domain([d3.min(dataset, d => d[1]), d3.max(dataset, d => d[1])])
-            .range([h - padding, padding]);
-
-        // @ts-ignore
-        const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat((val: number, _id: number) => {return '' + Math.round(val / 1000)+ 'K'});
-        const yAxis = d3.axisLeft(yScale).ticks(5);
-
-        svg.selectAll("circle")
-            .data(dataset)
-            .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d[0]))
-            .attr("cy", d => h - yScale(d[1]))
-            .attr("r", d => 20 * d[2] / biggestBubble)
-            .attr("fill", "blue");
-
-        //x axis
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (h - padding) + ")")
-            .call(xAxis);
-
-        //y axis
-        svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + padding + ", 0)")
-            .call(yAxis);
-    }
-
-    render(): React.ReactElement {
-        return (
-            <svg className="container"
-                 ref={(ref: SVGSVGElement) => this.ref = ref}
-                 width={this.props.width}
-                 height={this.props.height}>
-            </svg>
-        );
-    }
+        svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
+            .on("mouseover", () => {
+                this.tooltip.style("visibility", "visible");
+                this.tooltip.html(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 1000) + 'K'} greenhouse gas emissions<div>${dataPoint.meat_consumption} meat consumed per-capita</div>${dataPoint.gdp} GDP per-capita`);
+            })
+            .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mouseout", () => this.tooltip.style("visibility", "hidden"))
+            .transition().duration(250)
+            .attr('cx', this.xScale(dataPoint.gdp))
+            .attr('cy', h - this.yScale(dataPoint.meat_consumption))
+            .attr('r', Math.log(dataPoint.ghg_emission))
+            .attr("fill", color)
+            .attr('visibility', 'visible');
+    };
 }

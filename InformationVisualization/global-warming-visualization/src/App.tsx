@@ -59,11 +59,14 @@ export default class App extends Component<Props, State> {
                         />}
                     </div>
                     <div className="chart-box">
-                        {this.state.data && false &&
+                        {this.state.data &&
                         <BubbleChart
                             width='100%' height='100%'
                             // @ts-ignore
                             data={this.state.data}
+                            yearStart={this.state.yearStart}
+                            yearEnd={this.state.yearEnd}
+                            selectedCountries={this.state.selectedCountries}
                         />}
                     </div>
                     <div className="chart-box">
