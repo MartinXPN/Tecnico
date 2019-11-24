@@ -91,18 +91,38 @@ export default class RadialBarChart extends Component<Props> {
             .attr('font-weight', 'bold')
             .style("fill", RadialBarChart.GLACIER_MASS_COLOR);
 
+        const tooltip = d3.select("body")
+            .append("foreignObject")
+            .append("xhtml:body")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("font", "11px 'Helvetica Neue'");
+
 
         this.seaLevelElements = svg.append("g")
             .selectAll("path")
             .data(this.props.data)
             .enter()
-            .append("path");
+            .append("path")
+            .on("mouseover", (d) => {
+                tooltip.style("visibility", "visible");
+                tooltip.html(`<div><strong>Year ${d.year}</strong></div>Global sea level increased by ${d.level} since 1940`);
+            })
+            .on("mousemove", () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mouseout", () => tooltip.style("visibility", "hidden"));
 
         this.glacierElements = svg.append("g")
             .selectAll("path")
             .data(this.props.data)
             .enter()
-            .append("path");
+            .append("path")
+            .on("mouseover", (d) => {
+                tooltip.style("visibility", "visible");
+                tooltip.html(`<div><strong>Year ${d.year}</strong></div>Global glacier mass decreased by ${-d.mass} since 1940`);
+            })
+            .on("mousemove", () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mouseout", () => tooltip.style("visibility", "hidden"));
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
