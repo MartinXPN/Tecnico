@@ -9,6 +9,9 @@ interface Props {
     yearStart: number;
     yearEnd: number;
 }
+interface State {
+    hoveredYear: number | undefined;
+}
 
 function scaleRadial(domain: number[], range: number[]) {
 
@@ -24,19 +27,27 @@ function scaleRadial(domain: number[], range: number[]) {
     return scale;
 }
 
-export default class RadialBarChart extends Component<Props> {
+export default class RadialBarChart extends Component<Props, State> {
     private static SEA_LEVEL_COLOR = "#1484b3";
     private static GLACIER_MASS_COLOR = "#b32019";
     // @ts-ignore
     private ref: SVGSVGElement;
     private seaLevelElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
     private glacierElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
+    // @ts-ignore
+    protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+
+
+    state = {
+        hoveredYear: undefined,
+    };
 
     addRadialChart = (elementSet: d3.Selection<SVGPathElement, Data, SVGElement, unknown>,
                       innerRadius: number, outerRadius: number,
                       color: string, range: number[],
                       data: d3.DSVParsedArray<Data>,
-                      getValue: (d: any) => number, getX: (d: any) => number) => {
+                      getValue: (d: any) => number, getX: (d: any) => number,
+                      getDescription: (d: any) => string) => {
 
         const smallest = d3.min(data, getValue);
         const largest = d3.max(data, getValue);
@@ -51,17 +62,31 @@ export default class RadialBarChart extends Component<Props> {
             [innerRadius, outerRadius]
         );
 
-        elementSet.attr("fill", color)
+        elementSet.on("mouseover", (d) => {
+            this.tooltip.style("visibility", "visible");
+            this.tooltip.html(getDescription(d));
+            this.setState({hoveredYear: d.year});
+        })
+            .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mouseout", () => {
+                this.tooltip.style("visibility", "hidden");
+                this.setState({hoveredYear: undefined});
+            })
+            .attr("fill", color)
             .attr("d", d3.arc()
                 .innerRadius(innerRadius)
-                .outerRadius(d => y(getValue(d)))
+                .outerRadius(d => {
+                    // @ts-ignore
+                    const heightMultiplier = d.year === this.state.hoveredYear ? 1.1 : 1;
+                    return y(heightMultiplier * getValue(d))
+                })
                 // @ts-ignore
                 .startAngle(d => {return x("" + getX(d));}).endAngle(d => {return x("" + getX(d)) + x.bandwidth();})
                 .padAngle(0.01)
                 .padRadius(innerRadius)
             )
             .transition().duration(100)
-        // hide or show opacity = 1 => show, opacity = 0 => hide
+            // hide or show opacity = 1 => show, opacity = 0 => hide
             .style("opacity", d => this.props.yearStart <= getX(d) && getX(d) <= this.props.yearEnd ? 1 : 0.1);
     };
 
@@ -91,7 +116,7 @@ export default class RadialBarChart extends Component<Props> {
             .attr('font-weight', 'bold')
             .style("fill", RadialBarChart.GLACIER_MASS_COLOR);
 
-        const tooltip = d3.select("body")
+        this.tooltip = d3.select("body")
             .append("foreignObject")
             .append("xhtml:body")
             .style("position", "absolute")
@@ -104,25 +129,13 @@ export default class RadialBarChart extends Component<Props> {
             .selectAll("path")
             .data(this.props.data)
             .enter()
-            .append("path")
-            .on("mouseover", (d) => {
-                tooltip.style("visibility", "visible");
-                tooltip.html(`<div><strong>Year ${d.year}</strong></div>Global sea level increased by ${d.level} since 1940`);
-            })
-            .on("mousemove", () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-            .on("mouseout", () => tooltip.style("visibility", "hidden"));
+            .append("path");
 
         this.glacierElements = svg.append("g")
             .selectAll("path")
             .data(this.props.data)
             .enter()
-            .append("path")
-            .on("mouseover", (d) => {
-                tooltip.style("visibility", "visible");
-                tooltip.html(`<div><strong>Year ${d.year}</strong></div>Global glacier mass decreased by ${-d.mass} since 1940`);
-            })
-            .on("mousemove", () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-            .on("mouseout", () => tooltip.style("visibility", "hidden"));
+            .append("path");
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
@@ -134,8 +147,8 @@ export default class RadialBarChart extends Component<Props> {
         const outerRadius = Math.min(w, h) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
         if (this.seaLevelElements && this.glacierElements) {
-            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, RadialBarChart.SEA_LEVEL_COLOR, [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year);
-            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, RadialBarChart.GLACIER_MASS_COLOR, [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year);
+            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, RadialBarChart.SEA_LEVEL_COLOR, [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year, (d) => `<div><strong>Year ${d.year}</strong></div>Global sea level increased by ${d.level} since 1940`);
+            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, RadialBarChart.GLACIER_MASS_COLOR, [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year, (d) => `<div><strong>Year ${d.year}</strong></div>Global glacier mass decreased by ${-d.mass} since 1940`);
         }
     }
 
