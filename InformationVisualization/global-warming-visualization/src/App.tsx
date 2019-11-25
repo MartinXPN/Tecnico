@@ -9,6 +9,7 @@ import BubbleChart from "./charts/BubbleChart";
 import RadialBarChart from "./charts/RadialBarChart";
 import {SeaGlaciersData} from "./entities";
 import {GdpTemperatureMeatGhgData} from "./entities";
+import SearchBox from "./search/SearchBox";
 
 
 interface Props {
@@ -67,6 +68,7 @@ export default class App extends Component<Props, State> {
         return (
             <div className="App">
                 <img src="./logo.png" className="logo" />
+                <div className="search"><SearchBox /></div>
                 <SplitPane className="content" split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
                         <div className="chart-box">

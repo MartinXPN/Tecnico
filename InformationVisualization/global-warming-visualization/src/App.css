@@ -43,3 +43,10 @@
   height: 100%;
   position: absolute;
 }
+
+.search {
+  width: 30%;
+  position: absolute;
+  right: 0;
+  padding: 15px;
+}
