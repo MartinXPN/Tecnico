@@ -46,9 +46,16 @@ export default class App extends Component<Props, State> {
         });
     }
 
-    updateHoveredCountry = (country: string | undefined) => {console.log('Hover:', country);this.setState({hoveredCountry: country})};
-    selectCountry = (country: string) => {this.setState({selectedCountries: new Set([country])})};
-    addCountry = (country: string) => {this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})};
+    updateHoveredCountry = (country: string | undefined) => {
+        console.log('Hover:', country);
+        this.setState({hoveredCountry: country})
+    };
+    selectCountry = (country: string) => {
+        this.setState({selectedCountries: new Set([country])})
+    };
+    addCountry = (country: string) => {
+        this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})
+    };
     removeCountry = (country: string) => {
         const selectedCountries = new Set(Array.from(this.state.selectedCountries));
         selectedCountries.delete(country);
@@ -58,66 +65,69 @@ export default class App extends Component<Props, State> {
 
     render(): React.ReactElement {
         return (
-            <SplitPane split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
-                <div style={{width: '100%', height: '100%'}}>
-                    <div className="chart-box">
-                        {this.state.sea2glaciers &&
-                        <RadialBarChart
-                            width='100%' height='100%'
-                            // @ts-ignore
-                            data={this.state.sea2glaciers}
-                            yearStart={this.state.yearStart}
-                            yearEnd={this.state.yearEnd}
-                        />}
+            <div className="App">
+                <img src="./logo.png" className="logo" />
+                <SplitPane className="content" split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
+                    <div style={{width: '100%', height: '100%'}}>
+                        <div className="chart-box">
+                            {this.state.sea2glaciers &&
+                            <RadialBarChart
+                                width='100%' height='100%'
+                                // @ts-ignore
+                                data={this.state.sea2glaciers}
+                                yearStart={this.state.yearStart}
+                                yearEnd={this.state.yearEnd}
+                            />}
+                        </div>
+                        <div className="chart-box">
+                            {this.state.data &&
+                            <BubbleChart
+                                width='100%' height='100%'
+                                // @ts-ignore
+                                data={this.state.data}
+                                yearStart={this.state.yearStart}
+                                yearEnd={this.state.yearEnd}
+                                selectedCountries={this.state.selectedCountries}
+                                selectCountry={this.selectCountry}
+                                hoverCountry={this.updateHoveredCountry}
+                                currentHoveredCountry={this.state.hoveredCountry}
+                            />}
+                        </div>
+                        <div className="chart-box">
+                            {this.state.data &&
+                            <ScatterPlot
+                                width='100%' height='100%'
+                                // @ts-ignore
+                                data={this.state.data}
+                                yearStart={this.state.yearStart}
+                                yearEnd={this.state.yearEnd}
+                                selectedCountries={this.state.selectedCountries}
+                                selectCountry={this.selectCountry}
+                                hoverCountry={this.updateHoveredCountry}
+                                currentHoveredCountry={this.state.hoveredCountry}
+                            />}
+                        </div>
                     </div>
-                    <div className="chart-box">
-                        {this.state.data &&
-                        <BubbleChart
-                            width='100%' height='100%'
-                            // @ts-ignore
-                            data={this.state.data}
-                            yearStart={this.state.yearStart}
-                            yearEnd={this.state.yearEnd}
-                            selectedCountries={this.state.selectedCountries}
-                            selectCountry={this.selectCountry}
-                            hoverCountry={this.updateHoveredCountry}
-                            currentHoveredCountry={this.state.hoveredCountry}
-                        />}
-                    </div>
-                    <div className="chart-box">
-                        {this.state.data &&
-                        <ScatterPlot
-                            width='100%' height='100%'
-                            // @ts-ignore
-                            data={this.state.data}
-                            yearStart={this.state.yearStart}
-                            yearEnd={this.state.yearEnd}
-                            selectedCountries={this.state.selectedCountries}
-                            selectCountry={this.selectCountry}
-                            hoverCountry={this.updateHoveredCountry}
-                            currentHoveredCountry={this.state.hoveredCountry}
-                        />}
-                    </div>
-                </div>
 
-                <div style={{width: '100%', height: '100%'}}>
-                    <div className="Time-slider">
-                        <TimeSlider
-                            domain={[1950, 2014]}
-                            initialValues={[this.state.yearStart, this.state.yearEnd]}
-                            updateValues={(newValues: number[]) => {
-                                this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
-                            }}/>
+                    <div style={{width: '100%', height: '100%'}}>
+                        <div className="Time-slider">
+                            <TimeSlider
+                                domain={[1950, 2014]}
+                                initialValues={[this.state.yearStart, this.state.yearEnd]}
+                                updateValues={(newValues: number[]) => {
+                                    this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
+                                }}/>
+                        </div>
+                        <Map width='100%' height='100%'
+                             selectedCountries={this.state.selectedCountries}
+                             addCountry={this.addCountry}
+                             removeCountry={this.removeCountry}
+                             hoverCountry={this.updateHoveredCountry}
+                             currentHoveredCountry={this.state.hoveredCountry}
+                        />
                     </div>
-                    <Map width='100%' height='100%'
-                         selectedCountries={this.state.selectedCountries}
-                         addCountry={this.addCountry}
-                         removeCountry={this.removeCountry}
-                         hoverCountry={this.updateHoveredCountry}
-                         currentHoveredCountry={this.state.hoveredCountry}
-                    />
-                </div>
-            </SplitPane>
+                </SplitPane>
+            </div>
         );
     }
 };
