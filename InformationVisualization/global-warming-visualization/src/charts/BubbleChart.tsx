@@ -10,6 +10,7 @@ export default class BubbleChart extends ScatterPlot {
 
         this.xLabel = 'GDP per-capita';
         this.yLabel = 'Meat consumption per-capita';
+        this.title = 'Meat consumption GDP and GHG emissions';
     }
 
     getX = (d: GdpTemperatureMeatGhgData) => d.gdp;

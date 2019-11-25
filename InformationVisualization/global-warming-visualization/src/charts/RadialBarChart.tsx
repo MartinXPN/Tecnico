@@ -30,6 +30,7 @@ function scaleRadial(domain: number[], range: number[]) {
 export default class RadialBarChart extends Component<Props, State> {
     private static SEA_LEVEL_COLOR = "#1484b3";
     private static GLACIER_MASS_COLOR = "#b32019";
+    protected title = 'Sea level and glaciers mass';
     // @ts-ignore
     private ref: SVGSVGElement;
     private seaLevelElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
@@ -115,6 +116,14 @@ export default class RadialBarChart extends Component<Props, State> {
             .attr('font-size', '13px')
             .attr('font-weight', 'bold')
             .style("fill", RadialBarChart.GLACIER_MASS_COLOR);
+
+        svg.append("text")
+            .attr("transform", "translate(" + 0 + " ," + (-h / 2 + 20) + ")")
+            .style("text-anchor", "middle")
+            .text(this.title)
+            .attr('font-weight', 'bold')
+            .attr('font-size', '15px');
+
 
         this.tooltip = d3.select("body")
             .append("foreignObject")

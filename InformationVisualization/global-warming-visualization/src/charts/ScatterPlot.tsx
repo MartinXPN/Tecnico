@@ -31,6 +31,7 @@ export default class ScatterPlot extends Component<Props, State> {
     protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
     protected xLabel = 'GHG Emissions';
     protected yLabel = 'Temperature ℃';
+    protected title = 'Temperature and GHG emissions';
 
     state = {
         countriesDisplayed: new Set<string>(),
@@ -80,6 +81,14 @@ export default class ScatterPlot extends Component<Props, State> {
             return '' + val;
         });
         const yAxis = d3.axisLeft(this.yScale).ticks(5);
+
+        svg.append("text")
+            .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h / 6) + ")")
+            .style("text-anchor", "middle")
+            .text(this.title)
+            .attr('font-weight', 'bold')
+            .attr('font-size', '15px');
+
 
         //x axis
         svg.append("g")
