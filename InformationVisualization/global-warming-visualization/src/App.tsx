@@ -47,16 +47,9 @@ export default class App extends Component<Props, State> {
         });
     }
 
-    updateHoveredCountry = (country: string | undefined) => {
-        console.log('Hover:', country);
-        this.setState({hoveredCountry: country})
-    };
-    selectCountry = (country: string) => {
-        this.setState({selectedCountries: new Set([country])})
-    };
-    addCountry = (country: string) => {
-        this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])})
-    };
+    updateHoveredCountry = (country: string | undefined) => this.setState({hoveredCountry: country});
+    selectCountry = (country: string) => this.setState({selectedCountries: new Set([country])});
+    addCountry = (country: string) => this.setState({selectedCountries: new Set([...Array.from(this.state.selectedCountries), country])});
     removeCountry = (country: string) => {
         const selectedCountries = new Set(Array.from(this.state.selectedCountries));
         selectedCountries.delete(country);
@@ -68,7 +61,6 @@ export default class App extends Component<Props, State> {
         return (
             <div className="App">
                 <img src="./logo.png" className="logo" />
-                <div className="search"><SearchBox /></div>
                 <SplitPane className="content" split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
                         <div className="chart-box">
@@ -129,6 +121,7 @@ export default class App extends Component<Props, State> {
                         />
                     </div>
                 </SplitPane>
+                <div className="search"><SearchBox /></div>
             </div>
         );
     }
