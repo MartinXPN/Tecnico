@@ -112,15 +112,17 @@ export default class App extends Component<Props, State> {
                                 }}/>
                         </div>
                         <Map width='100%' height='100%'
+                             yearStart={this.state.yearStart}
+                             yearEnd={this.state.yearEnd}
                              selectedCountries={this.state.selectedCountries}
                              addCountry={this.addCountry}
                              removeCountry={this.removeCountry}
                              hoverCountry={this.updateHoveredCountry}
-                             currentHoveredCountry={this.state.hoveredCountry}
+                             hoveredCountry={this.state.hoveredCountry}
                         />
                     </div>
                 </SplitPane>
-                <img src="logo.png" className="logo"  alt=""/>
+                <img src={"logo.png"} className="logo" alt=""/>
                 <div className="search"><SearchBox /></div>
             </div>
         );

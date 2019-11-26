@@ -161,8 +161,6 @@ export default class ScatterPlot extends Component<Props, State> {
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
         const h = this.ref.getBoundingClientRect().height;
         const svg = d3.select(this.ref);
-        console.log('Props:', this.props);
-        console.log('State:', this.state);
 
         // remove old countries
         this.state.countriesDisplayed.forEach(country => {
