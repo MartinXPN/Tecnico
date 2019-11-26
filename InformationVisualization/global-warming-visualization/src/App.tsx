@@ -60,10 +60,9 @@ export default class App extends Component<Props, State> {
     render(): React.ReactElement {
         return (
             <div className="App">
-                <img src="./logo.png" className="logo" />
                 <SplitPane className="content" split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
-                        <div className="chart-box">
+                        <div className="chart-box" style={{paddingTop: '1.5em', paddingRight: '3em'}}>
                             {this.state.sea2glaciers &&
                             <RadialBarChart
                                 width='100%' height='100%'
@@ -121,6 +120,7 @@ export default class App extends Component<Props, State> {
                         />
                     </div>
                 </SplitPane>
+                <img src="logo.png" className="logo"  alt=""/>
                 <div className="search"><SearchBox /></div>
             </div>
         );
