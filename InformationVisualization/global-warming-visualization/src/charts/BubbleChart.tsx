@@ -26,7 +26,6 @@ export default class BubbleChart extends ScatterPlot {
             return;
         }
 
-        const hoverFactor = this.props.currentHoveredCountry === country ? 1.5 : 1;
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
@@ -42,7 +41,7 @@ export default class BubbleChart extends ScatterPlot {
             .transition().duration(250)
             .attr('cx', this.xScale(dataPoint.gdp))
             .attr('cy', h - this.yScale(dataPoint.meat_consumption))
-            .attr('r', hoverFactor * Math.log(dataPoint.ghg_emission))
+            .attr('r', Math.log(dataPoint.ghg_emission))
             .attr("fill", color)
             .attr('visibility', 'visible')
             .attr('opacity', this.props.currentHoveredCountry === country ? 1 : 0.8);
