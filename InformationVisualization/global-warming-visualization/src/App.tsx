@@ -18,8 +18,12 @@ interface Props {
 interface State {
     sea2glaciers: d3.DSVParsedArray<SeaGlaciersData> | undefined;
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData> | undefined;
+
     yearStart: number;
     yearEnd: number;
+    startColor: string;
+    endColor: string;
+
     selectedCountries: Set<string>;
     hoveredCountry: string | undefined;
 }
@@ -31,6 +35,8 @@ export default class App extends Component<Props, State> {
         data: undefined,
         yearStart: 1970,
         yearEnd: 2014,
+        startColor: '#428f37',
+        endColor: '#34568f',
         selectedCountries: new Set(['Armenia', 'Portugal', 'United States']),
         hoveredCountry: undefined,
     };
@@ -80,6 +86,8 @@ export default class App extends Component<Props, State> {
                                 data={this.state.data}
                                 yearStart={this.state.yearStart}
                                 yearEnd={this.state.yearEnd}
+                                startColor={this.state.startColor}
+                                endColor={this.state.endColor}
                                 selectedCountries={this.state.selectedCountries}
                                 selectCountry={this.selectCountry}
                                 hoverCountry={this.updateHoveredCountry}
@@ -94,6 +102,8 @@ export default class App extends Component<Props, State> {
                                 data={this.state.data}
                                 yearStart={this.state.yearStart}
                                 yearEnd={this.state.yearEnd}
+                                startColor={this.state.startColor}
+                                endColor={this.state.endColor}
                                 selectedCountries={this.state.selectedCountries}
                                 selectCountry={this.selectCountry}
                                 hoverCountry={this.updateHoveredCountry}
@@ -107,6 +117,7 @@ export default class App extends Component<Props, State> {
                             <TimeSlider
                                 domain={[1950, 2014]}
                                 initialValues={[this.state.yearStart, this.state.yearEnd]}
+                                colors={[this.state.startColor, this.state.endColor]}
                                 updateValues={(newValues: number[]) => {
                                     this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
                                 }}/>

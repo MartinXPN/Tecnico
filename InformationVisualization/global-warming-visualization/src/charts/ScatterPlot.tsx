@@ -7,8 +7,12 @@ export interface Props {
     width: number | string;
     height: number | string;
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData>;
+
     yearStart: number;
     yearEnd: number;
+    startColor: string;
+    endColor: string;
+
     selectedCountries: Set<string>;
     selectCountry: (country: string) => void;
     hoverCountry: (country: string | undefined) => void;
@@ -182,8 +186,8 @@ export default class ScatterPlot extends Component<Props, State> {
             // @ts-ignore
             const end = this.countryToData.get(country).get(this.props.yearEnd);
 
-            this.handleCountryYear(svg, start, country, 'yearStart', "green", h);
-            this.handleCountryYear(svg, end, country, 'yearEnd', "red", h);
+            this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor, h);
+            this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor, h);
         });
 
         if(!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
