@@ -30,6 +30,7 @@ function scaleRadial(domain: number[], range: number[]) {
 export default class RadialBarChart extends Component<Props, State> {
     private static SEA_LEVEL_COLOR = "#1484b3";
     private static GLACIER_MASS_COLOR = "#b32019";
+    private static OPACITIES = {DISABLED: 0.1, ENABLED: 0.7, HIGHLIGHTED: 1};
     protected title = 'Sea level and glaciers mass';
     // @ts-ignore
     private ref: SVGSVGElement;
@@ -88,7 +89,13 @@ export default class RadialBarChart extends Component<Props, State> {
             )
             .transition().duration(100)
             // hide or show opacity = 1 => show, opacity = 0 => hide
-            .style("opacity", d => this.props.yearStart <= getX(d) && getX(d) <= this.props.yearEnd ? 1 : 0.1);
+            .style("opacity", d => {
+                if( this.state.hoveredYear === d.year )
+                    return RadialBarChart.OPACITIES.HIGHLIGHTED;
+                if( this.props.yearStart <= getX(d) && getX(d) <= this.props.yearEnd )
+                    return RadialBarChart.OPACITIES.ENABLED;
+                return RadialBarChart.OPACITIES.DISABLED;
+            });
     };
 
     componentDidMount(): void {
