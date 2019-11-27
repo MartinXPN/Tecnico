@@ -66,7 +66,7 @@ export default class App extends Component<Props, State> {
     render(): React.ReactElement {
         return (
             <div className="App">
-                <SplitPane className="content" split="vertical" minSize='20%' defaultSize='30%' maxSize='50%' allowResize={true}>
+                <SplitPane className="content" split="vertical" minSize='20%' defaultSize='40%' maxSize='50%' allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
                         <div className="chart-box" style={{paddingTop: '1.5em', paddingRight: '3em'}}>
                             {this.state.sea2glaciers &&
