@@ -131,6 +131,21 @@ export default class RadialBarChart extends Component<Props, State> {
             .attr('font-weight', 'bold')
             .attr('font-size', '15px');
 
+        // years
+        const minYear = d3.min(this.props.data, d => d.year);
+        const maxYear = d3.max(this.props.data, d => d.year);
+        svg.append("text")
+            .attr("transform", "translate(" + (-w / 6) + " ," + 0 + ")")
+            .style("text-anchor", "middle")
+            .text('' + minYear)
+            .attr('font-size', '9px');
+        svg.append("text")
+            .attr("transform", "translate(" + (w / 4) + " ," + 0 + ")")
+            .style("text-anchor", "middle")
+            .text('' + maxYear)
+            .attr('font-size', '9px');
+
+
 
         this.tooltip = d3.select("body")
             .append("foreignObject")
