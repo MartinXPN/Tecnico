@@ -30,8 +30,12 @@ export default class ScatterPlot extends Component<Props, State> {
     // @ts-ignore
     protected xScale: d3.ScaleLinear<number, number>;
     // @ts-ignore
+    protected xAxis: d3.Selection<SVGGElement, unknown, null, undefined>;
+    // @ts-ignore
     protected yScale: d3.ScaleLinear<number, number>;
     // @ts-ignore
+    protected yAxis: d3.Selection<SVGGElement, unknown, null, undefined>;
+// @ts-ignore
     protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
     protected xLabel = 'GHG Emissions';
     protected yLabel = 'Temperature ℃';
@@ -66,26 +70,6 @@ export default class ScatterPlot extends Component<Props, State> {
         const h = rect.height;
         const padding = 50;
 
-        this.xScale = d3.scaleLinear()
-        // @ts-ignore
-            .domain([d3.min(this.props.data, d => this.getX(d)), d3.max(this.props.data, d => this.getX(d))])
-            .range([padding, w - padding * 2]);
-
-        this.yScale = d3.scaleLinear()
-        // @ts-ignore
-            .domain([d3.min(this.props.data, d => this.getY(d)), d3.max(this.props.data, d => this.getY(d))])
-            .range([h - padding, padding]);
-
-        const largestX = d3.max(this.props.data, this.getX);
-        // @ts-ignore
-        const xAxis = d3.axisBottom(this.xScale).ticks(5).tickFormat((val: number, id: number) => {
-            if(!largestX) return id;
-            if(largestX > 5 * Math.pow(10, 6)) return '' + Math.round(val / 1000000) + 'M';
-            if(largestX > 5 * Math.pow(10, 3)) return '' + Math.round(val / 1000) + 'K';
-            return '' + val;
-        });
-        const yAxis = d3.axisLeft(this.yScale).ticks(5);
-
         svg.append("text")
             .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h / 6) + ")")
             .style("text-anchor", "middle")
@@ -93,23 +77,23 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr('font-weight', 'bold')
             .attr('font-size', '15px');
 
-
-        //x axis
-        svg.append("g")
+        this.xAxis = svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + (h - padding) + ")")
-            .call(xAxis);
+            .attr("transform", "translate(0," + (h - padding) + ")");
+
+        this.yAxis = svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + padding + ", 0)");
+
+
+        //x label
         svg.append("text")
             .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h - 15) + ")")
             .style("text-anchor", "middle")
             .text(this.xLabel)
             .attr('font-size', '12px');
 
-        //y axis
-        svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + padding + ", 0)")
-            .call(yAxis);
+        //y label
         svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 10)
@@ -163,8 +147,12 @@ export default class ScatterPlot extends Component<Props, State> {
     };
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
-        const h = this.ref.getBoundingClientRect().height;
         const svg = d3.select(this.ref);
+        const rect = this.ref.getBoundingClientRect();
+
+        const w = rect.width;
+        const h = rect.height;
+        const padding = 50;
 
         // remove old countries
         this.state.countriesDisplayed.forEach(country => {
@@ -173,6 +161,41 @@ export default class ScatterPlot extends Component<Props, State> {
                 svg.select(`circle[title='yearEnd-${country}']`).remove();
             }
         });
+
+        const filter = (d: any) => this.props.selectedCountries.has(d.country)
+            // && (d.year === this.props.yearStart || d.year === this.props.yearEnd);
+        let maxX = d3.max(this.props.data, d => filter(d) ? this.getX(d) : 0);
+        let minX = d3.min(this.props.data, d => filter(d) ? this.getX(d) : Infinity);
+        let maxY = d3.max(this.props.data, d => filter(d) ? this.getY(d) : 0);
+        let minY = d3.min(this.props.data, d => filter(d) ? this.getY(d) : Infinity);
+        if( maxX === undefined || minX === undefined || minY === undefined || maxY === undefined )
+            return;
+
+        const rangeX = maxX - minX === 0 ? maxX : maxX - minX;
+        const rangeY = maxY - minY === 0 ? maxY : maxY - minY;
+
+        minX -= 0.1 * rangeX;    maxX += 0.1 * rangeX;
+        minY -= 0.1 * rangeY;    maxY += 0.1 * rangeY;
+        this.xScale = d3.scaleLinear()
+            .domain([minX, maxX])
+            .range([padding, w - 2 * padding]);
+
+        this.yScale = d3.scaleLinear()
+            .domain([minY, maxY])
+            .range([h - padding, padding]);
+
+        // @ts-ignore
+        const xAxis = d3.axisBottom(this.xScale).ticks(5).tickFormat((val: number, id: number) => {
+            if(!maxX) return id;
+            if(maxX > 5 * Math.pow(10, 6)) return '' + Math.round(val / 1000000) + 'M';
+            if(maxX > 5 * Math.pow(10, 3)) return '' + Math.round(val / 1000) + 'K';
+            return '' + val;
+        });
+        const yAxis = d3.axisLeft(this.yScale).ticks(5);
+
+        this.xAxis.call(xAxis);
+        this.yAxis.call(yAxis);
+
 
         // add new countries and display the data
         this.props.selectedCountries.forEach(country => {
