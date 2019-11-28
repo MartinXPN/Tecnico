@@ -64,7 +64,6 @@ export default class Map extends Component<Props, State> {
             }
 
             if (this.props.hoveredCountry) {
-                const selector = map.select(`[title='${this.props.hoveredCountry}']`);
                 map.select(`[title='${this.props.hoveredCountry}']`)
                     .style('opacity', Map.HOVER_OPACITY)
                     .style('stroke-width', Map.HOVER_STROKE);

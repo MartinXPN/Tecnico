@@ -9,7 +9,6 @@ interface State {
 
 
 export default class Tooltip extends Component<Props, State> {
-    // @ts-ignore
     protected tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
     constructor(props: Props) {
