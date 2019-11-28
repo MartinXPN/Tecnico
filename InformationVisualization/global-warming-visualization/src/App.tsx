@@ -129,8 +129,7 @@ export default class App extends Component<Props, State> {
                              addCountry={this.addCountry}
                              removeCountry={this.removeCountry}
                              hoverCountry={this.updateHoveredCountry}
-                             hoveredCountry={this.state.hoveredCountry}
-                        />
+                             hoveredCountry={this.state.hoveredCountry}/>
                     </div>
                 </SplitPane>
                 <img src={"logo.png"} className="logo" alt=""/>

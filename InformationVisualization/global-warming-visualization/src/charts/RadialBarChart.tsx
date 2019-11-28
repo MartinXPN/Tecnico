@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import * as d3 from "d3";
 import {SeaGlaciersData as Data} from "../entities";
+import Tooltip from "../tooltip/Tooltip";
 
 interface Props {
     width: number | string;
@@ -36,8 +37,12 @@ export default class RadialBarChart extends Component<Props, State> {
     private ref: SVGSVGElement;
     private seaLevelElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
     private glacierElements: d3.Selection<SVGPathElement, Data, SVGElement, unknown> | undefined;
-    // @ts-ignore
-    protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+    protected tooltip: Tooltip;
+
+    constructor(props: Props) {
+        super(props);
+        this.tooltip = new Tooltip({});
+    }
 
 
     state = {
@@ -65,13 +70,12 @@ export default class RadialBarChart extends Component<Props, State> {
         );
 
         elementSet.on("mouseover", (d) => {
-            this.tooltip.style("visibility", "visible");
-            this.tooltip.html(getDescription(d));
+            this.tooltip.show(getDescription(d));
             this.setState({hoveredYear: d.year});
         })
-            .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {
-                this.tooltip.style("visibility", "hidden");
+                this.tooltip.hide();
                 this.setState({hoveredYear: undefined});
             })
             .attr("fill", color)
@@ -144,16 +148,6 @@ export default class RadialBarChart extends Component<Props, State> {
             .style("text-anchor", "middle")
             .text('' + maxYear)
             .attr('font-size', '9px');
-
-
-
-        this.tooltip = d3.select("body")
-            .append("foreignObject")
-            .append("xhtml:body")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .style("font", "11px 'Helvetica Neue'");
 
 
         this.seaLevelElements = svg.append("g")

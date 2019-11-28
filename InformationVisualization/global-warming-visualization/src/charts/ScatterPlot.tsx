@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import * as d3 from "d3";
 import {GdpTemperatureMeatGhgData} from "../entities";
 import * as _ from "lodash";
+import Tooltip from "../tooltip/Tooltip";
 
 export interface Props {
     width: number | string;
@@ -35,8 +36,7 @@ export default class ScatterPlot extends Component<Props, State> {
     protected yScale: d3.ScaleLinear<number, number>;
     // @ts-ignore
     protected yAxis: d3.Selection<SVGGElement, unknown, null, undefined>;
-// @ts-ignore
-    protected tooltip: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+    protected tooltip: Tooltip;
     protected xLabel = 'GHG Emissions';
     protected yLabel = 'Temperature ℃';
     protected title = 'Temperature and GHG emissions';
@@ -47,6 +47,7 @@ export default class ScatterPlot extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
+        this.tooltip = new Tooltip({});
 
         this.countryToData = new Map();
         props.data.forEach(d => {
@@ -103,15 +104,6 @@ export default class ScatterPlot extends Component<Props, State> {
             .text(this.yLabel)
             .attr('font-size', '12px');
 
-
-        this.tooltip = d3.select("body")
-            .append("foreignObject")
-            .append("xhtml:body")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .style("font", "11px 'Helvetica Neue'");
-
         this.componentDidUpdate(this.props, this.state);
     }
 
@@ -128,13 +120,12 @@ export default class ScatterPlot extends Component<Props, State> {
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.style("visibility", "visible");
-                this.tooltip.html(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>${dataPoint.temperature}℃ average yearly temperature</div>`);
+                this.tooltip.show(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>${dataPoint.temperature}℃ average yearly temperature</div>`);
             })
-            .on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {
                 this.props.hoverCountry(undefined);
-                this.tooltip.style("visibility", "hidden");
+                this.tooltip.hide();
             })
             .on("click", () => this.props.selectCountry(country))
             .transition().duration(150)
@@ -162,7 +153,7 @@ export default class ScatterPlot extends Component<Props, State> {
             }
         });
 
-        const filter = (d: any) => this.props.selectedCountries.has(d.country)
+        const filter = (d: any) => this.props.selectedCountries.has(d.country);
             // && (d.year === this.props.yearStart || d.year === this.props.yearEnd);
         let maxX = d3.max(this.props.data, d => filter(d) ? this.getX(d) : 0);
         let minX = d3.min(this.props.data, d => filter(d) ? this.getX(d) : Infinity);
