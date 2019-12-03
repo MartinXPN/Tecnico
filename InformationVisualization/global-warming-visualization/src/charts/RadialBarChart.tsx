@@ -129,7 +129,7 @@ export default class RadialBarChart extends Component<Props, State> {
             .style("fill", RadialBarChart.GLACIER_MASS_COLOR);
 
         svg.append("text")
-            .attr("transform", "translate(" + 0 + " ," + (-h / 2 + 20) + ")")
+            .attr("transform", "translate(" + 0 + " ," + (-h / 2 + 15) + ")")
             .style("text-anchor", "middle")
             .text(this.title)
             .attr('font-weight', 'bold')
