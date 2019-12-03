@@ -75,15 +75,14 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h / 6) + ")")
             .style("text-anchor", "middle")
             .text(this.title)
-            .attr('font-weight', 'bold')
             .attr('font-size', '15px');
 
         this.xAxis = svg.append("g")
-            .attr("class", "x axis")
+            .attr("class", "axis")
             .attr("transform", "translate(0," + (h - padding) + ")");
 
         this.yAxis = svg.append("g")
-            .attr("class", "y axis")
+            .attr("class", "axis")
             .attr("transform", "translate(" + padding + ", 0)");
 
 
@@ -111,7 +110,7 @@ export default class ScatterPlot extends Component<Props, State> {
                          dataPoint: GdpTemperatureMeatGhgData | undefined,
                          country: string, identifier: string,
                          color: string, h: number) => {
-        if(!dataPoint) {
+        if (!dataPoint) {
             svg.select(`circle[title='${identifier}-${country}']`).attr('visibility', 'hidden');
             return;
         }
@@ -120,7 +119,7 @@ export default class ScatterPlot extends Component<Props, State> {
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.show(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>${dataPoint.temperature}℃ average yearly temperature</div>`);
+                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country}</strong></div> - ${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div> - ${dataPoint.temperature}℃ average yearly temperature</div>`);
             })
             .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {
@@ -154,19 +153,21 @@ export default class ScatterPlot extends Component<Props, State> {
         });
 
         const filter = (d: any) => this.props.selectedCountries.has(d.country);
-            // && (d.year === this.props.yearStart || d.year === this.props.yearEnd);
+        // && (d.year === this.props.yearStart || d.year === this.props.yearEnd);
         let maxX = d3.max(this.props.data, d => filter(d) ? this.getX(d) : 0);
         let minX = d3.min(this.props.data, d => filter(d) ? this.getX(d) : Infinity);
         let maxY = d3.max(this.props.data, d => filter(d) ? this.getY(d) : 0);
         let minY = d3.min(this.props.data, d => filter(d) ? this.getY(d) : Infinity);
-        if( maxX === undefined || minX === undefined || minY === undefined || maxY === undefined )
+        if (maxX === undefined || minX === undefined || minY === undefined || maxY === undefined)
             return;
 
         const rangeX = maxX - minX === 0 ? maxX : maxX - minX;
         const rangeY = maxY - minY === 0 ? maxY : maxY - minY;
 
-        minX -= 0.1 * rangeX;    maxX += 0.1 * rangeX;
-        minY -= 0.1 * rangeY;    maxY += 0.1 * rangeY;
+        minX -= 0.1 * rangeX;
+        maxX += 0.1 * rangeX;
+        minY -= 0.1 * rangeY;
+        maxY += 0.1 * rangeY;
         this.xScale = d3.scaleLinear()
             .domain([minX, maxX])
             .range([padding, w - 2 * padding]);
@@ -175,13 +176,15 @@ export default class ScatterPlot extends Component<Props, State> {
             .domain([minY, maxY])
             .range([h - padding, padding]);
 
-        // @ts-ignore
-        const xAxis = d3.axisBottom(this.xScale).ticks(5).tickFormat((val: number, id: number) => {
-            if(!maxX) return id;
-            if(maxX > 5 * Math.pow(10, 6)) return '' + Math.round(val / 1000000) + 'M';
-            if(maxX > 5 * Math.pow(10, 3)) return '' + Math.round(val / 1000) + 'K';
-            return '' + val;
-        });
+        const xAxis = d3.axisBottom(this.xScale)
+            .ticks(5)
+            // @ts-ignore
+            .tickFormat((val: number, id: number) => {
+                if (!maxX) return id;
+                if (maxX > 5 * Math.pow(10, 6)) return '' + Math.round(val / 1000000) + 'M';
+                if (maxX > 5 * Math.pow(10, 3)) return '' + Math.round(val / 1000) + 'K';
+                return '' + val;
+            });
         const yAxis = d3.axisLeft(this.yScale).ticks(5);
 
         this.xAxis.call(xAxis);
@@ -204,7 +207,7 @@ export default class ScatterPlot extends Component<Props, State> {
             this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor, h);
         });
 
-        if(!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
+        if (!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
             this.setState({countriesDisplayed: this.props.selectedCountries});
     }
 
@@ -213,7 +216,7 @@ export default class ScatterPlot extends Component<Props, State> {
             <svg
                 ref={(ref: SVGSVGElement) => this.ref = ref}
                 width={this.props.width}
-                height={this.props.height} />
+                height={this.props.height}/>
         );
     }
 }

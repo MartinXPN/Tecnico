@@ -29,7 +29,7 @@ export default class BubbleChart extends ScatterPlot {
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.show(`<div><strong>${dataPoint.country}</strong></div>${Math.round(dataPoint.ghg_emission / 1000) + 'K'} greenhouse gas emissions<div>${dataPoint.meat_consumption} meat consumed per-capita</div>${dataPoint.gdp} GDP per-capita`);
+                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country}</strong></div> - ${Math.round(dataPoint.ghg_emission / 1000) + 'K'} greenhouse gas emissions<div> - ${dataPoint.meat_consumption} meat consumed per-capita</div> - ${dataPoint.gdp} GDP per-capita`);
             })
             .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {

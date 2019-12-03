@@ -33,11 +33,11 @@ export default class App extends Component<Props, State> {
     state = {
         sea2glaciers: undefined,
         data: undefined,
-        yearStart: 1970,
+        yearStart: 1980,
         yearEnd: 2014,
         startColor: '#428f37',
         endColor: '#34568f',
-        selectedCountries: new Set(['Armenia', 'Portugal', 'United States']),
+        selectedCountries: new Set(['Spain', 'Portugal', 'United States', 'Armenia', 'France']),
         hoveredCountry: undefined,
     };
 

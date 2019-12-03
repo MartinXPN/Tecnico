@@ -173,8 +173,8 @@ export default class RadialBarChart extends Component<Props, State> {
 
         const minYear = d3.min(this.props.data, d => d.year);
         if (this.seaLevelElements && this.glacierElements) {
-            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, RadialBarChart.SEA_LEVEL_COLOR, [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year, (d) => `<div><strong>Year ${d.year}</strong></div>Global sea level increased by ${d.level} since ${minYear}`);
-            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, RadialBarChart.GLACIER_MASS_COLOR, [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year, (d) => `<div><strong>Year ${d.year}</strong></div>Global glacier mass decreased by ${-d.mass} since ${minYear}`);
+            this.addRadialChart(this.seaLevelElements, innerRadius, outerRadius, RadialBarChart.SEA_LEVEL_COLOR, [1.5 * Math.PI, 2.5 * Math.PI], this.props.data, (d) => d.level, d => d.year, (d) => `<div style="text-align: center"><strong>Year ${d.year}</strong></div>Global sea level increased by ${d.level} since ${minYear}`);
+            this.addRadialChart(this.glacierElements, innerRadius, outerRadius, RadialBarChart.GLACIER_MASS_COLOR, [-0.5 * Math.PI, -1.5 * Math.PI], this.props.data, (d) => -d.mass, d => d.year, (d) => `<div style="text-align: center"><strong>Year ${d.year}</strong></div>Global glacier mass decreased by ${-d.mass} since ${minYear}`);
         }
     }
 
