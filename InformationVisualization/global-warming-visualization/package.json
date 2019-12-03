@@ -17,6 +17,7 @@
     "react-scripts": "3.2.0",
     "react-search-box": "^2.0.2",
     "react-split-pane": "^0.1.89",
+    "simpleheat": "^0.4.0",
     "styled-components": "^4.4.1",
     "topojson": "^3.0.2",
     "typescript": "3.7.2"

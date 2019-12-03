@@ -3,7 +3,7 @@ import './App.css';
 import * as d3 from 'd3'
 import TimeSlider from "./sliders/TimeSlider";
 import SplitPane from 'react-split-pane';
-import Map from "./map/Map";
+import TemperatureWorldMap from "./map/TemperatureWorldMap";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
 import RadialBarChart from "./charts/RadialBarChart";
@@ -122,14 +122,14 @@ export default class App extends Component<Props, State> {
                                     this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
                                 }}/>
                         </div>
-                        <Map width='100%' height='100%'
-                             yearStart={this.state.yearStart}
-                             yearEnd={this.state.yearEnd}
-                             selectedCountries={this.state.selectedCountries}
-                             addCountry={this.addCountry}
-                             removeCountry={this.removeCountry}
-                             hoverCountry={this.updateHoveredCountry}
-                             hoveredCountry={this.state.hoveredCountry}/>
+                        <TemperatureWorldMap width='100%' height='100%'
+                                             yearStart={this.state.yearStart}
+                                             yearEnd={this.state.yearEnd}
+                                             selectedCountries={this.state.selectedCountries}
+                                             addCountry={this.addCountry}
+                                             removeCountry={this.removeCountry}
+                                             hoverCountry={this.updateHoveredCountry}
+                                             hoveredCountry={this.state.hoveredCountry}/>
                     </div>
                 </SplitPane>
                 <img src={"logo.png"} className="logo" alt=""/>

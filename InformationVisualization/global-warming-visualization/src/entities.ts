@@ -12,3 +12,10 @@ export interface GdpTemperatureMeatGhgData {
     temperature: number;
     ghg_emission: number;
 }
+
+export interface TemperatureData {
+    dt: number;
+    Latitude: number;
+    Longitude: number;
+    AverageTemperature: number;
+}
