@@ -201,14 +201,14 @@ export default class ScatterPlot extends Component<Props, State> {
 
         // add new countries and display the data
         this.props.selectedCountries.forEach(country => {
+            const countryData = this.countryToData.get(country);
+            if(!countryData)
+                return;
+
             if (!this.state.countriesDisplayed.has(country)) {
                 this.addCountry(svg, country, `yearStart-${country}`);
                 this.addCountry(svg, country, `yearEnd-${country}`);
             }
-
-            const countryData = this.countryToData.get(country);
-            if(!countryData)
-                return;
 
             const start = countryData.get(this.props.yearStart);
             const end = countryData.get(this.props.yearEnd);
