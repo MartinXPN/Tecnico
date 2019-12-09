@@ -40,6 +40,7 @@ export default class ScatterPlot extends Component<Props, State> {
     protected xLabel = 'GHG Emissions';
     protected yLabel = 'Temperature ℃';
     protected title = 'Temperature and GHG emissions';
+    protected static OPACITIES = {DISABLED: 0.1, ENABLED: 0.7, HIGHLIGHTED: 1};
 
     state = {
         countriesDisplayed: new Set<string>(),
@@ -140,7 +141,7 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr('r', hoverFactor * 4)
             .attr("fill", color)
             .attr('visibility', 'visible')
-            .attr('opacity', this.props.currentHoveredCountry === country ? 1 : 0.8);
+            .attr('opacity', this.props.currentHoveredCountry === country ? ScatterPlot.OPACITIES.HIGHLIGHTED : ScatterPlot.OPACITIES.ENABLED);
     };
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
