@@ -2,29 +2,19 @@ import React, { Component } from 'react'
 // @ts-ignore
 import ReactSearchBox from 'react-search-box'
 
-export default class SearchBox extends Component {
-    data = [
-        {
-            key: 'john',
-            value: 'John Doe',
-        },
-        {
-            key: 'jane',
-            value: 'Jane Doe',
-        },
-        {
-            key: 'mary',
-            value: 'Mary Phillips',
-        },
-        {
-            key: 'robert',
-            value: 'Robert',
-        },
-        {
-            key: 'karius',
-            value: 'Karius',
-        },
-    ];
+interface Props {
+    countries: Array<string>;
+}
+
+export default class SearchBox extends Component<Props> {
+    private readonly data: Array<{key: string, value: string}>;
+
+    constructor(props: Props) {
+        super(props);
+
+        this.data = props.countries.map(d => {return {key: d, value: d}});
+    }
+
 
     render() {
         return (

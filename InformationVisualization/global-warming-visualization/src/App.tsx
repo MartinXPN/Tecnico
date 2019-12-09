@@ -18,6 +18,7 @@ interface State {
     sea2glaciers: d3.DSVParsedArray<SeaGlaciersData> | undefined;
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData> | undefined;
     country2temperature: d3.DSVParsedArray<CountryTemperatureData> | undefined;
+    countryList: Array<string> | undefined;
 
     yearStart: number;
     yearEnd: number;
@@ -33,6 +34,7 @@ export default class App extends Component<Props, State> {
     state = {
         sea2glaciers: undefined,
         country2temperature: undefined,
+        countryList: undefined,
         data: undefined,
         yearStart: 1980,
         yearEnd: 2013,
@@ -55,7 +57,11 @@ export default class App extends Component<Props, State> {
 
         d3.json('./country2temperature.json').then(data => {
             this.setState({country2temperature: data});
+            let countries = data.map((d: CountryTemperatureData) => d.country);
+            countries = Array.from(new Set(countries));
+            this.setState({countryList: countries});
             console.log(data);
+            console.log(countries);
         })
     }
 
@@ -144,7 +150,12 @@ export default class App extends Component<Props, State> {
                     </div>
                 </SplitPane>
                 <img src={"logo.png"} className="logo" alt=""/>
-                <div className="search"><SearchBox/></div>
+                <div className="search">
+                    {this.state.countryList &&
+                    // @ts-ignore
+                    <SearchBox countries={this.state.countryList}/>
+                    }
+                </div>
             </div>
         );
     }
