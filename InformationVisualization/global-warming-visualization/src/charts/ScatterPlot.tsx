@@ -62,6 +62,13 @@ export default class ScatterPlot extends Component<Props, State> {
 
     getX = (d: GdpTemperatureMeatGhgData) => d.ghg_emission;
     getY = (d: GdpTemperatureMeatGhgData) => d.temperature;
+    addCountry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, country: string, title: string) => {
+        svg.append(`circle`).attr('title', title);
+    };
+    removeCountry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, country: string, title: string) => {
+        svg.select(`circle[title='${title}']`).remove();
+    };
+
 
     componentDidMount(): void {
         const svg = d3.select(this.ref);
@@ -147,8 +154,8 @@ export default class ScatterPlot extends Component<Props, State> {
         // remove old countries
         this.state.countriesDisplayed.forEach(country => {
             if (!this.props.selectedCountries.has(country)) {
-                svg.select(`circle[title='yearStart-${country}']`).remove();
-                svg.select(`circle[title='yearEnd-${country}']`).remove();
+                this.removeCountry(svg, country, `yearStart-${country}`);
+                this.removeCountry(svg, country, `yearEnd-${country}`);
             }
         });
 
@@ -194,8 +201,8 @@ export default class ScatterPlot extends Component<Props, State> {
         // add new countries and display the data
         this.props.selectedCountries.forEach(country => {
             if (!this.state.countriesDisplayed.has(country)) {
-                svg.append(`circle`).attr('title', `yearStart-${country}`);
-                svg.append(`circle`).attr('title', `yearEnd-${country}`);
+                this.addCountry(svg, country, `yearStart-${country}`);
+                this.addCountry(svg, country, `yearEnd-${country}`);
             }
 
             const countryData = this.countryToData.get(country);
