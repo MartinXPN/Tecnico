@@ -29,14 +29,14 @@ export default class BubbleChart extends ScatterPlot {
     handleCountryYear = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
                          dataPoint: (GdpTemperatureMeatGhgData | undefined),
                          country: string, identifier: string,
-                         color: string, h: number) => {
+                         color: string) => {
         if (!dataPoint) {
             svg.select(`circle[title='${identifier}-${country}']`).attr('visibility', 'hidden');
             svg.select(`image[title='${identifier}-${country}']`).attr('visibility', 'hidden');
             return;
         }
 
-        const radius = Math.log(dataPoint.ghg_emission);
+        const radius = Math.log(10 * dataPoint.ghg_emission);
         const centerX = this.xScale(dataPoint.gdp);
         const centerY = this.yScale(dataPoint.meat_consumption);
         const flagScale = 0.7;
@@ -53,7 +53,7 @@ export default class BubbleChart extends ScatterPlot {
         svg.select(`image[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country}</strong></div> - ${Math.round(dataPoint.ghg_emission / 1000) + 'K'} greenhouse gas emissions<div> - ${dataPoint.meat_consumption} meat consumed per-capita</div> - ${dataPoint.gdp} GDP per-capita`);
+                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country} - ${dataPoint.year}</strong></div>• ${Math.round(dataPoint.ghg_emission / 1000) + 'K'} greenhouse gas emissions<div>• ${dataPoint.meat_consumption} meat consumed per-capita</div>• ${dataPoint.gdp} GDP per-capita`);
             })
             .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {

@@ -117,7 +117,7 @@ export default class ScatterPlot extends Component<Props, State> {
     handleCountryYear = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
                          dataPoint: GdpTemperatureMeatGhgData | undefined,
                          country: string, identifier: string,
-                         color: string, h: number) => {
+                         color: string) => {
         if (!dataPoint) {
             svg.select(`circle[title='${identifier}-${country}']`).attr('visibility', 'hidden');
             return;
@@ -127,7 +127,7 @@ export default class ScatterPlot extends Component<Props, State> {
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country}</strong></div> - ${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div> - ${dataPoint.temperature}℃ average yearly temperature</div>`);
+                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country} - ${dataPoint.year}</strong></div>• ${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>• ${dataPoint.temperature}℃ average yearly temperature</div>`);
             })
             .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {
@@ -213,8 +213,8 @@ export default class ScatterPlot extends Component<Props, State> {
             const start = countryData.get(this.props.yearStart);
             const end = countryData.get(this.props.yearEnd);
 
-            this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor, h);
-            this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor, h);
+            this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor);
+            this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor);
         });
 
         if (!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
