@@ -137,7 +137,7 @@ export default class ScatterPlot extends Component<Props, State> {
             .on("click", () => this.props.selectCountry(country))
             .transition().duration(150)
             .attr('cx', this.xScale(this.getX(dataPoint)))
-            .attr('cy', h - this.yScale(this.getY(dataPoint)))
+            .attr('cy', this.yScale(this.getY(dataPoint)))
             .attr('r', hoverFactor * 4)
             .attr("fill", color)
             .attr('visibility', 'visible')

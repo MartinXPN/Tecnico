@@ -38,7 +38,7 @@ export default class BubbleChart extends ScatterPlot {
 
         const radius = Math.log(dataPoint.ghg_emission);
         const centerX = this.xScale(dataPoint.gdp);
-        const centerY = h - this.yScale(dataPoint.meat_consumption);
+        const centerY = this.yScale(dataPoint.meat_consumption);
         const flagScale = 0.7;
 
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
