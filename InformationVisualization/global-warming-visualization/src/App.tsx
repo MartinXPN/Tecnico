@@ -34,7 +34,7 @@ export default class App extends Component<Props, State> {
         sea2glaciers: undefined,
         data: undefined,
         yearStart: 1980,
-        yearEnd: 2014,
+        yearEnd: 2013,
         startColor: '#428f37',
         endColor: '#34568f',
         selectedCountries: new Set(['Spain', 'Portugal', 'United States', 'Armenia', 'France']),
@@ -115,7 +115,7 @@ export default class App extends Component<Props, State> {
                     <div style={{width: '100%', height: '100%'}}>
                         <div className="Time-slider">
                             <TimeSlider
-                                domain={[1950, 2014]}
+                                domain={[1950, 2013]}
                                 initialValues={[this.state.yearStart, this.state.yearEnd]}
                                 colors={[this.state.startColor, this.state.endColor]}
                                 updateValues={(newValues: number[]) => {

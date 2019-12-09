@@ -198,10 +198,12 @@ export default class ScatterPlot extends Component<Props, State> {
                 svg.append(`circle`).attr('title', `yearEnd-${country}`);
             }
 
-            // @ts-ignore
-            const start = this.countryToData.get(country).get(this.props.yearStart);
-            // @ts-ignore
-            const end = this.countryToData.get(country).get(this.props.yearEnd);
+            const countryData = this.countryToData.get(country);
+            if(!countryData)
+                return;
+
+            const start = countryData.get(this.props.yearStart);
+            const end = countryData.get(this.props.yearEnd);
 
             this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor, h);
             this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor, h);

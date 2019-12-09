@@ -148,7 +148,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         });
 
         d3.json('./temperatures_by_city.json').then(data => {
-            this.setState({temperatureData: data}, () => this.drawHeatMap());
+            this.setState({temperatureData: data});
+            // this.setState({temperatureData: data}, () => this.drawHeatMap());
         });
     }
 
