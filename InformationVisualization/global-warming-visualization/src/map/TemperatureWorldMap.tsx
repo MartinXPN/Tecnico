@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import * as d3 from 'd3';
 // @ts-ignore
 import * as simpleheat from 'simpleheat';
-import {TemperatureData} from "../entities";
+import {CountryTemperatureData, TemperatureData} from "../entities";
 
 interface Props {
     width: number | string;
@@ -14,6 +14,7 @@ interface Props {
     selectedCountries: Set<string>;
     addCountry: (country: string) => void;
     removeCountry: (country: string) => void;
+    data: d3.DSVParsedArray<CountryTemperatureData>;
 }
 
 interface State {

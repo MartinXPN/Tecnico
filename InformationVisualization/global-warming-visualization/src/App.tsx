@@ -7,8 +7,7 @@ import TemperatureWorldMap from "./map/TemperatureWorldMap";
 import ScatterPlot from "./charts/ScatterPlot";
 import BubbleChart from "./charts/BubbleChart";
 import RadialBarChart from "./charts/RadialBarChart";
-import {SeaGlaciersData} from "./entities";
-import {GdpTemperatureMeatGhgData} from "./entities";
+import {CountryTemperatureData, SeaGlaciersData, GdpTemperatureMeatGhgData} from "./entities";
 import SearchBox from "./search/SearchBox";
 
 
@@ -18,6 +17,7 @@ interface Props {
 interface State {
     sea2glaciers: d3.DSVParsedArray<SeaGlaciersData> | undefined;
     data: d3.DSVParsedArray<GdpTemperatureMeatGhgData> | undefined;
+    country2temperature: d3.DSVParsedArray<CountryTemperatureData> | undefined;
 
     yearStart: number;
     yearEnd: number;
@@ -32,6 +32,7 @@ export default class App extends Component<Props, State> {
 
     state = {
         sea2glaciers: undefined,
+        country2temperature: undefined,
         data: undefined,
         yearStart: 1980,
         yearEnd: 2013,
@@ -51,6 +52,11 @@ export default class App extends Component<Props, State> {
             this.setState({data: data});
             console.log(data);
         });
+
+        d3.json('./country2temperature.json').then(data => {
+            this.setState({country2temperature: data});
+            console.log(data);
+        })
     }
 
     updateHoveredCountry = (country: string | undefined) => this.setState({hoveredCountry: country});
@@ -66,7 +72,8 @@ export default class App extends Component<Props, State> {
     render(): React.ReactElement {
         return (
             <div className="App">
-                <SplitPane className="content" split="vertical" minSize='20%' defaultSize='40%' maxSize='50%' allowResize={true}>
+                <SplitPane className="content" split="vertical" minSize='20%' defaultSize='40%' maxSize='50%'
+                           allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
                         <div className="chart-box" style={{paddingTop: '1.5em', paddingRight: '3em'}}>
                             {this.state.sea2glaciers &&
@@ -122,6 +129,8 @@ export default class App extends Component<Props, State> {
                                     this.setState({yearStart: newValues[0], yearEnd: newValues[1]})
                                 }}/>
                         </div>
+
+                        {this.state.country2temperature &&
                         <TemperatureWorldMap width='100%' height='100%'
                                              yearStart={this.state.yearStart}
                                              yearEnd={this.state.yearEnd}
@@ -129,11 +138,13 @@ export default class App extends Component<Props, State> {
                                              addCountry={this.addCountry}
                                              removeCountry={this.removeCountry}
                                              hoverCountry={this.updateHoveredCountry}
-                                             hoveredCountry={this.state.hoveredCountry}/>
+                                             hoveredCountry={this.state.hoveredCountry}
+                                             // @ts-ignore
+                                             data={this.state.country2temperature}/>}
                     </div>
                 </SplitPane>
                 <img src={"logo.png"} className="logo" alt=""/>
-                <div className="search"><SearchBox /></div>
+                <div className="search"><SearchBox/></div>
             </div>
         );
     }

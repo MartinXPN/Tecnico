@@ -19,3 +19,9 @@ export interface TemperatureData {
     Longitude: number;
     AverageTemperature: number;
 }
+
+export interface CountryTemperatureData {
+    country: string;
+    year: number;
+    temperature: number;
+}
