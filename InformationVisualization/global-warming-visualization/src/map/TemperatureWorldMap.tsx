@@ -68,15 +68,15 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const start: Map<string, number> = new Map();
         const end: Map<string, number> = new Map();
         this.state.temperatureData.forEach((record: TemperatureData) => {
-            if( record.dt === this.props.yearStart ) start.set(record.Longitude + '-' + record.Latitude, record.AverageTemperature);
-            if( record.dt === this.props.yearEnd )   end.set(record.Longitude + '-' + record.Latitude, record.AverageTemperature);
+            if( record.dt === this.props.yearStart ) start.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
+            if( record.dt === this.props.yearEnd )   end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
         });
 
         const temperatureDifference = [];
         // @ts-ignore
         for( const cord of start.keys()) {
             if(end.has(cord)) {
-                const [lng, lat] = cord.split('-');
+                const [lng, lat] = cord.split('#');
                 const lnglat = this.projection([+lng, +lat]);
                 // @ts-ignore
                 temperatureDifference.push([lnglat[0], lnglat[1], end.get(cord) - start.get(cord)]);
@@ -111,7 +111,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
 
         /// years were changed => need to render the whole map colors from scratch
         if (this.props.yearStart !== prevProps.yearStart || this.props.yearEnd !== prevProps.yearEnd) {
-            // this.drawHeatMap();
+            this.drawHeatMap();
         }
     }
 
@@ -137,10 +137,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 .append("path").attr('title', (d: any) => d.properties.name)
                 .on('click', (d: any) => {
                     const country = d.properties.name;
-                    if (this.props.selectedCountries.has(country))
-                        this.props.removeCountry(country);
-                    else
-                        this.props.addCountry(country);
+                    if (this.props.selectedCountries.has(country))  this.props.removeCountry(country);
+                    else                                            this.props.addCountry(country);
                 })
                 .on('mouseover', (d: any) => this.props.hoverCountry(d.properties.name))
                 .on('mouseout', () => this.props.hoverCountry(undefined));
@@ -149,8 +147,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         });
 
         d3.json('./temperatures_by_city.json').then(data => {
-            this.setState({temperatureData: data});
-            // this.setState({temperatureData: data}, () => this.drawHeatMap());
+            this.setState({temperatureData: data}, () => this.drawHeatMap());
         });
     }
 
