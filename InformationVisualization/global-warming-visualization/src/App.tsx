@@ -81,10 +81,10 @@ export default class App extends Component<Props, State> {
                 <SplitPane className="content" split="vertical" minSize='20%' defaultSize='40%' maxSize='50%'
                            allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
-                        <div className="chart-box" style={{paddingTop: '1.5em', paddingRight: '3em'}}>
+                        <div className="chart-box">
                             {this.state.sea2glaciers &&
                             <RadialBarChart
-                                width='100%' height='100%'
+                                width='80%' height='100%'
                                 // @ts-ignore
                                 data={this.state.sea2glaciers}
                                 yearStart={this.state.yearStart}

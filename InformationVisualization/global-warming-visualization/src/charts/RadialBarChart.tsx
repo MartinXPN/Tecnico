@@ -139,12 +139,12 @@ export default class RadialBarChart extends Component<Props, State> {
         const minYear = d3.min(this.props.data, d => d.year);
         const maxYear = d3.max(this.props.data, d => d.year);
         svg.append("text")
-            .attr("transform", "translate(" + (-w / 6) + " ," + 0 + ")")
+            .attr("transform", "translate(" + (-w / 5) + " ," + 0 + ")")
             .style("text-anchor", "middle")
             .text('' + minYear)
             .attr('font-size', '9px');
         svg.append("text")
-            .attr("transform", "translate(" + (w / 4) + " ," + 0 + ")")
+            .attr("transform", "translate(" + (w / 3) + " ," + 0 + ")")
             .style("text-anchor", "middle")
             .text('' + maxYear)
             .attr('font-size', '9px');
