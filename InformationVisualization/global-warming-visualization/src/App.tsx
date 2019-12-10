@@ -152,9 +152,13 @@ export default class App extends Component<Props, State> {
                 <img src={"logo.png"} className="logo" alt=""/>
                 <div className="search">
                     {this.state.countryList &&
-                    // @ts-ignore
-                    <SearchBox countries={this.state.countryList}/>
-                    }
+                    <SearchBox
+                        // @ts-ignore
+                        countries={this.state.countryList}
+                        addCountry={this.addCountry}
+                        removeCountry={this.removeCountry}
+                        selectedCountries={this.state.selectedCountries}
+                    />}
                 </div>
             </div>
         );

@@ -46,8 +46,9 @@
 }
 
 .search {
+  font-size: 12px;
   width: 30%;
   position: absolute;
   right: 0;
-  padding: 15px;
+  padding-right: 15px;
 }
