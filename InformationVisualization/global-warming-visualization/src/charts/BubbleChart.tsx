@@ -17,7 +17,7 @@ export default class BubbleChart extends ScatterPlot {
     getY = (d: GdpTemperatureMeatGhgData) => d.meat_consumption;
     addCountry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, country: string, title: string) => {
         svg.append(`circle`).attr('title', title);
-        const flagPath = `/flags/${country.toLowerCase().replace(' ', '-')}.svg`;
+        const flagPath = `/flags/${country.toLowerCase().replace(/\s+/g, '-')}.svg`;
         svg.append('svg:image').attr('title', title).attr('xlink:href', flagPath);
     };
     removeCountry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, country: string, title: string) => {
