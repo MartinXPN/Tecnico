@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 // @ts-ignore
 import * as simpleheat from 'simpleheat';
 import {CountryTemperatureData, TemperatureData} from "../entities";
+import Tooltip from "../tooltip/Tooltip";
 
 interface Props {
     width: number | string;
@@ -20,6 +21,7 @@ interface Props {
 interface State {
     currentlyHoveredCountry: string | undefined;
     temperatureData: d3.DSVParsedArray<TemperatureData>;
+    countryData: Map<string, Map<number, number>>;
 }
 
 export default class TemperatureWorldMap extends Component<Props, State> {
@@ -37,12 +39,15 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     private heat: any;
     // @ts-ignore
     private projection: d3.GeoProjection;
+    private tooltip: Tooltip = new Tooltip({});
 
     // @ts-ignore
     state = {
         currentlyHoveredCountry: undefined,
         temperatureData: [],
+        countryData: new Map(),
     };
+
 
     drawMap = () => {
         const rect = this.ref.getBoundingClientRect();
@@ -116,6 +121,16 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     }
 
     componentDidMount() {
+        const countryData = new Map<string, Map<number, number>>();
+        this.props.data.forEach(d => {
+            if(!countryData.has(d.country))                 countryData.set(d.country, new Map());
+            // @ts-ignore
+            if(!countryData.get(d.country).has(d.year))     countryData.get(d.country).set(d.year, d.temperature);
+        });
+        this.setState({countryData: countryData});
+        console.log(countryData);
+
+
         const rect = this.ref.getBoundingClientRect();
 
         const w = rect.width;
@@ -134,14 +149,38 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 .selectAll("path")
                 .data(data.features)
                 .enter()
-                .append("path").attr('title', (d: any) => d.properties.name)
+                .append("path")
+                .attr('title', (d: any) => d.properties.name)
                 .on('click', (d: any) => {
                     const country = d.properties.name;
                     if (this.props.selectedCountries.has(country))  this.props.removeCountry(country);
                     else                                            this.props.addCountry(country);
                 })
-                .on('mouseover', (d: any) => this.props.hoverCountry(d.properties.name))
-                .on('mouseout', () => this.props.hoverCountry(undefined));
+                .on("mouseover", (d: any) => {
+                    const country = d.properties.name;
+                    this.props.hoverCountry(country);
+
+                    let description = ``;
+                    let startTemperature = undefined;
+                    let endTemperature = undefined;
+                    if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearStart)) {
+                        startTemperature = this.state.countryData.get(country).get(this.props.yearStart);
+                        description += `<div>${this.props.yearStart}: temperature was ${startTemperature}</div>`;
+                    }
+                    if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearEnd)) {
+                        endTemperature = this.state.countryData.get(country).get(this.props.yearEnd);
+                        description += `<div>${this.props.yearEnd}: temperature was ${endTemperature}</div>`;
+                    }
+                    if(startTemperature && endTemperature)
+                        description += `<div>Temperaature change: ${Math.round((endTemperature - startTemperature) * 100) / 100}℃</div>`;
+
+                    this.tooltip.show(`<div style="text-align: center"><strong>${country}</strong>${description}`);
+                })
+                .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
+                .on("mouseout", () => {
+                    this.props.hoverCountry(undefined);
+                    this.tooltip.hide();
+                });
 
             this.drawMap();
         });
