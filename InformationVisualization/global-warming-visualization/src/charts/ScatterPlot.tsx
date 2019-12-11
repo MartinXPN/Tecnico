@@ -105,7 +105,7 @@ export default class ScatterPlot extends Component<Props, State> {
         //y label
         svg.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 10)
+            .attr("y", 5)
             .attr("x", -h / 2)
             .attr("dy", "1em")
             .style("text-anchor", "middle")

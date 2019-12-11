@@ -55,8 +55,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const h = rect.height;
 
         this.projection = d3.geoMercator()
-            .scale(150)
-            .translate([w / 2, h / 1.5]);
+            .scale(155)
+            .translate([w / 2, h / 1.7]);
         const path = d3.geoPath().projection(this.projection);
 
         // @ts-ignore
@@ -73,14 +73,14 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const start: Map<string, number> = new Map();
         const end: Map<string, number> = new Map();
         this.state.temperatureData.forEach((record: TemperatureData) => {
-            if( record.dt === this.props.yearStart ) start.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
-            if( record.dt === this.props.yearEnd )   end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
+            if (record.dt === this.props.yearStart) start.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
+            if (record.dt === this.props.yearEnd)   end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
         });
 
         const temperatureDifference = [];
         // @ts-ignore
-        for( const cord of start.keys()) {
-            if(end.has(cord)) {
+        for (const cord of start.keys()) {
+            if (end.has(cord)) {
                 const [lng, lat] = cord.split('#');
                 const lnglat = this.projection([+lng, +lat]);
                 // @ts-ignore
@@ -123,9 +123,9 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     componentDidMount() {
         const countryData = new Map<string, Map<number, number>>();
         this.props.data.forEach(d => {
-            if(!countryData.has(d.country))                 countryData.set(d.country, new Map());
+            if (!countryData.has(d.country)) countryData.set(d.country, new Map());
             // @ts-ignore
-            if(!countryData.get(d.country).has(d.year))     countryData.get(d.country).set(d.year, d.temperature);
+            if (!countryData.get(d.country).has(d.year)) countryData.get(d.country).set(d.year, d.temperature);
         });
         this.setState({countryData: countryData});
         console.log(countryData);
@@ -141,6 +141,14 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const canvasLayer = div.append('canvas').attr('id', 'heatmap').attr('width', w).attr('height', h);
         const canvas = canvasLayer.node();
         this.heat = simpleheat(canvas);
+
+        // map
+        d3.select(this.ref).append("text")
+            .attr("transform", "translate(" + (w / 2) + " ," + (h - 10) + ")")
+            .style("text-anchor", "middle")
+            .text('Temperature difference map for cities with records')
+            .attr('font-weight', 'bold')
+            .attr('font-size', '15px');
 
         d3.json('./world_countries.json').then(data => {
             this.map = d3.select(this.ref)
@@ -163,15 +171,15 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                     let description = ``;
                     let startTemperature = undefined;
                     let endTemperature = undefined;
-                    if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearStart)) {
+                    if (this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearStart)) {
                         startTemperature = this.state.countryData.get(country).get(this.props.yearStart);
                         description += `<div>${this.props.yearStart}: temperature was ${startTemperature}℃</div>`;
                     }
-                    if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearEnd)) {
+                    if (this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearEnd)) {
                         endTemperature = this.state.countryData.get(country).get(this.props.yearEnd);
                         description += `<div>${this.props.yearEnd}: temperature was ${endTemperature}℃</div>`;
                     }
-                    if(startTemperature && endTemperature)
+                    if (startTemperature && endTemperature)
                         description += `<div>Temperature change: ${Math.round((endTemperature - startTemperature) * 100) / 100}℃</div>`;
 
                     this.tooltip.show(`<div style="text-align: center"><strong>${country}</strong>${description}`);
@@ -193,11 +201,11 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     render(): React.ReactElement {
         return (
             <div style={{width: this.props.width, height: this.props.height}}>
-                <div id='container' style={{position: "absolute", left: 0, top: 0, height: this.props.height, width: this.props.width}} />
+                <div id='container'
+                     style={{position: "absolute", left: 0, top: '10%', bottom: '20%', height: '70%', width: '100%'}}/>
                 <svg ref={(ref: SVGSVGElement) => this.ref = ref}
-                     style={{position: "absolute", left: 0, top: 0}}
-                     width={this.props.width}
-                     height={this.props.height}/>
+                     style={{position: "absolute", left: 0, top: '10%', bottom: '20%'}}
+                     width='100%' height='70%'/>
             </div>
         );
     }
