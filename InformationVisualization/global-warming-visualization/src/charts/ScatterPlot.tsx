@@ -37,8 +37,8 @@ export default class ScatterPlot extends Component<Props, State> {
     // @ts-ignore
     protected yAxis: d3.Selection<SVGGElement, unknown, null, undefined>;
     protected tooltip: Tooltip;
-    protected xLabel = 'GHG Emissions';
-    protected yLabel = 'Temperature ℃';
+    protected xLabel = 'GHG Emissions (kt of CO2)';
+    protected yLabel = 'Temperature (℃)';
     protected title = 'Temperature and GHG emissions';
     protected static OPACITIES = {DISABLED: 0.1, ENABLED: 0.7, HIGHLIGHTED: 1};
 
@@ -83,6 +83,7 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr("transform", "translate(" + ((w - padding) / 2) + " ," + (h / 6) + ")")
             .style("text-anchor", "middle")
             .text(this.title)
+            .attr('font-weight', 'bold')
             .attr('font-size', '15px');
 
         this.xAxis = svg.append("g")
@@ -127,7 +128,7 @@ export default class ScatterPlot extends Component<Props, State> {
         svg.select(`circle[title='${identifier}-${dataPoint.country}']`)
             .on("mouseover", () => {
                 this.props.hoverCountry(country);
-                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country} - ${dataPoint.year}</strong></div>• ${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M'} greenhouse gas emissions<div>• ${dataPoint.temperature}℃ average yearly temperature</div>`);
+                this.tooltip.show(`<div style="text-align: center"><strong>${dataPoint.country} - ${dataPoint.year}</strong></div>• ${Math.round(dataPoint.ghg_emission / 100000) / 10 + 'M kt'} greenhouse gas emissions<div>• ${dataPoint.temperature}℃ average yearly temperature</div>`);
             })
             .on("mousemove", () => this.tooltip.move(d3.event.pageY - 10, d3.event.pageX + 10))
             .on("mouseout", () => {

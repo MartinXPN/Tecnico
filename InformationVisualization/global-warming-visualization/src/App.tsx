@@ -36,8 +36,8 @@ export default class App extends Component<Props, State> {
         country2temperature: undefined,
         countryList: undefined,
         data: undefined,
-        yearStart: 1980,
-        yearEnd: 2013,
+        yearStart: 1990,
+        yearEnd: 2010,
         startColor: '#428f37',
         endColor: '#34568f',
         selectedCountries: new Set(['Spain', 'Portugal', 'United States', 'Armenia', 'France']),
@@ -84,7 +84,7 @@ export default class App extends Component<Props, State> {
                         <div className="chart-box">
                             {this.state.sea2glaciers &&
                             <RadialBarChart
-                                width='80%' height='100%'
+                                width='80%' height='90%'
                                 // @ts-ignore
                                 data={this.state.sea2glaciers}
                                 yearStart={this.state.yearStart}

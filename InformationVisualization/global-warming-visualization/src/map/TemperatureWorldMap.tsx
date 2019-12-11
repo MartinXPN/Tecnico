@@ -165,14 +165,14 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                     let endTemperature = undefined;
                     if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearStart)) {
                         startTemperature = this.state.countryData.get(country).get(this.props.yearStart);
-                        description += `<div>${this.props.yearStart}: temperature was ${startTemperature}</div>`;
+                        description += `<div>${this.props.yearStart}: temperature was ${startTemperature}℃</div>`;
                     }
                     if(this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearEnd)) {
                         endTemperature = this.state.countryData.get(country).get(this.props.yearEnd);
-                        description += `<div>${this.props.yearEnd}: temperature was ${endTemperature}</div>`;
+                        description += `<div>${this.props.yearEnd}: temperature was ${endTemperature}℃</div>`;
                     }
                     if(startTemperature && endTemperature)
-                        description += `<div>Temperaature change: ${Math.round((endTemperature - startTemperature) * 100) / 100}℃</div>`;
+                        description += `<div>Temperature change: ${Math.round((endTemperature - startTemperature) * 100) / 100}℃</div>`;
 
                     this.tooltip.show(`<div style="text-align: center"><strong>${country}</strong>${description}`);
                 })
