@@ -190,11 +190,12 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 return "translate(" + (initialOffset + currentOffset * totalWidth) + " ," + (h - 55) + ")";
             })
             .attr("dy", "1em")
-            .text(d => {
+            .text((d, i) => {
                 const currentOffset = +d.offset.slice(0, -1) / 100;
                 const total = range[1] - range[0];
                 const res = range[0] + currentOffset * total;
-                return res + '℃';
+                if( i === colors.length - 1)    return res + '+℃';
+                else                            return res + '℃';
             })
             .attr('font-size', '10px');
 
