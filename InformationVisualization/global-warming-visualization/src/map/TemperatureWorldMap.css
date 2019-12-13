@@ -1,0 +1,8 @@
+.map-container {
+    position: absolute;
+    left: 0;
+    top: 10%;
+    bottom: 15%;
+    height: 75%;
+    width: 100%;
+}

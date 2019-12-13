@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import * as simpleheat from 'simpleheat';
 import {CountryTemperatureData, TemperatureData} from "../entities";
 import Tooltip from "../tooltip/Tooltip";
+import './TemperatureWorldMap.css';
 
 interface Props {
     width: number | string;
@@ -74,7 +75,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const end: Map<string, number> = new Map();
         this.state.temperatureData.forEach((record: TemperatureData) => {
             if (record.dt === this.props.yearStart) start.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
-            if (record.dt === this.props.yearEnd)   end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
+            if (record.dt === this.props.yearEnd) end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
         });
 
         const temperatureDifference = [];
@@ -121,6 +122,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     }
 
     componentDidMount() {
+        // transform country data
         const countryData = new Map<string, Map<number, number>>();
         this.props.data.forEach(d => {
             if (!countryData.has(d.country)) countryData.set(d.country, new Map());
@@ -131,6 +133,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         console.log(countryData);
 
 
+        const svg = d3.select(this.ref);
         const rect = this.ref.getBoundingClientRect();
 
         const w = rect.width;
@@ -142,8 +145,58 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const canvas = canvasLayer.node();
         this.heat = simpleheat(canvas);
 
+        // color-range
+        const defs = svg.append("defs");
+        const linearGradient = defs.append("linearGradient").attr("id", "linear-gradient");
+        svg.append("rect")
+            .attr("width", w * 0.9)
+            .attr("height", 10)
+            .attr("transform", "translate(" + (w * 0.05) + " ," + (h - 40) + ")")
+            .attr("rx", '8')
+            .attr("ry", '8')
+            .attr("opacity", 0.8)
+            .style("fill", "url(#linear-gradient)");
+
+        this.heat.gradient({
+            0:      '#2247ff',
+            0.2:    '#3600ff',
+            0.4:    '#00FFFF',
+            0.6:    '#00FF00',
+            0.8:    '#FFFF00',
+            1:      '#FF0000',
+        });
+        const colors = [
+            {offset: "0%",      color: "#2247ff",   title: '-0.5℃'},
+            {offset: "20%",     color: "#3600ff",   title: '0℃'},
+            {offset: "40%",     color: "#00FFFF",   title: '0.5℃'},
+            {offset: "60%",     color: "#00FF00",   title: '1℃'},
+            {offset: "80%",     color: "#FFFF00",   title: '1.5℃'},
+            {offset: "100%",    color: "#FF0000",   title: '2℃'},
+        ];
+        linearGradient.selectAll("stop")
+            .data(colors)
+            .enter()
+            .append("stop")
+            .attr("offset", d => d.offset)
+            .attr("stop-color", d => d.color);
+
+        svg.selectAll('path')
+            .data(colors).enter()
+            .append('text')
+            .attr("transform", (d, i) => {
+                let totalWidth = w * 0.9;
+                totalWidth *= 0.98; // edges are rounded
+                const initialOffset = w * 0.05;
+                const currentOffset = +d.offset.slice(0, -1) / 100;
+                return "translate(" + (initialOffset + currentOffset * totalWidth) + " ," + (h - 55) + ")";
+            })
+            .attr("dy", "1em")
+            .text(d => d.title)
+            .attr('font-size', '10px');
+
+
         // map
-        d3.select(this.ref).append("text")
+        svg.append("text")
             .attr("transform", "translate(" + (w / 2) + " ," + (h - 10) + ")")
             .style("text-anchor", "middle")
             .text('Temperature difference map for cities with records')
@@ -151,8 +204,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .attr('font-size', '15px');
 
         d3.json('./world_countries.json').then(data => {
-            this.map = d3.select(this.ref)
-                .append("g")
+            this.map = svg.append("g")
                 .attr('class', 'map')
                 .selectAll("path")
                 .data(data.features)
@@ -161,8 +213,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 .attr('title', (d: any) => d.properties.name)
                 .on('click', (d: any) => {
                     const country = d.properties.name;
-                    if (this.props.selectedCountries.has(country))  this.props.removeCountry(country);
-                    else                                            this.props.addCountry(country);
+                    if (this.props.selectedCountries.has(country)) this.props.removeCountry(country);
+                    else this.props.addCountry(country);
                 })
                 .on("mouseover", (d: any) => {
                     const country = d.properties.name;
@@ -201,11 +253,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     render(): React.ReactElement {
         return (
             <div style={{width: this.props.width, height: this.props.height}}>
-                <div id='container'
-                     style={{position: "absolute", left: 0, top: '10%', bottom: '20%', height: '70%', width: '100%'}}/>
-                <svg ref={(ref: SVGSVGElement) => this.ref = ref}
-                     style={{position: "absolute", left: 0, top: '10%', bottom: '20%'}}
-                     width='100%' height='70%'/>
+                <div className='map-container' id='container' />
+                <svg className='map-container' ref={(ref: SVGSVGElement) => this.ref = ref} />
             </div>
         );
     }
