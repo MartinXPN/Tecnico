@@ -53,15 +53,16 @@ export default class App extends Component<Props, State> {
         d3.json('./gdp2temp2meat2ghg.json').then(data => {
             this.setState({data: data});
             console.log(data);
+
+            let countries = data.map((d: GdpTemperatureMeatGhgData) => d.country);
+            countries = Array.from(new Set(countries));
+            this.setState({countryList: countries});
+            console.log(countries);
         });
 
         d3.json('./country2temperature.json').then(data => {
             this.setState({country2temperature: data});
-            let countries = data.map((d: CountryTemperatureData) => d.country);
-            countries = Array.from(new Set(countries));
-            this.setState({countryList: countries});
             console.log(data);
-            console.log(countries);
         })
     }
 

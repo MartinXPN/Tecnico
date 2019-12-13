@@ -89,7 +89,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         }
 
         this.heat.data(temperatureDifference);
-        this.heat.radius(10, 10);
+        this.heat.radius(4, 4);
         this.heat.max(d3.max(temperatureDifference, d => d[2]));
         this.heat.draw(0.05);
     };
