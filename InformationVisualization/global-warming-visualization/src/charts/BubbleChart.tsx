@@ -29,7 +29,6 @@ export default class BubbleChart extends ScatterPlot {
                           startDataPoint: GdpTemperatureMeatGhgData | undefined,
                           endDataPoint: GdpTemperatureMeatGhgData | undefined,
                           country: string,
-                          startIdentifier: string, endIdentifier: string,
                           startColor: string, endColor: string) => {};
 
     handleCountryYear = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,

@@ -68,6 +68,7 @@ export default class ScatterPlot extends Component<Props, State> {
     };
     removeCountry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, country: string, title: string) => {
         svg.select(`circle[title='${title}']`).remove();
+        svg.select(`line[title='${country}']`).remove();
     };
 
 
@@ -149,9 +150,27 @@ export default class ScatterPlot extends Component<Props, State> {
                           startDataPoint: GdpTemperatureMeatGhgData | undefined,
                           endDataPoint: GdpTemperatureMeatGhgData | undefined,
                           country: string,
-                          startIdentifier: string, endIdentifier: string,
                           startColor: string, endColor: string) => {
 
+        if(!startDataPoint || !endDataPoint) {
+            svg.select(`line[title='${country}']`).attr('visibility', 'hidden');
+            return;
+        }
+        if(svg.select(`line[title='${country}']`).empty()) {
+            svg.append("line").attr("title", country);
+        }
+
+        svg.select(`line[title='${country}']`)
+            .transition().duration(150)
+            .attr("x1", this.xScale(this.getX(startDataPoint)))
+            .attr("y1", this.yScale(this.getY(startDataPoint)))
+            .attr("x2", this.xScale(this.getX(endDataPoint)))
+            .attr("y2", this.yScale(this.getY(endDataPoint)))
+            .attr('visibility', 'visible')
+            .attr('stroke-width', 3)
+            .attr('stroke', 'grey')
+            .attr('stroke-linecap', 'butt')
+            .attr('opacity', '0.5');
     };
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
@@ -223,9 +242,9 @@ export default class ScatterPlot extends Component<Props, State> {
             const start = countryData.get(this.props.yearStart);
             const end = countryData.get(this.props.yearEnd);
 
+            this.handleCountryTrend(svg, start, end, country, this.props.startColor, this.props.endColor);
             this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor);
             this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor);
-            this.handleCountryTrend(svg, start, end, country, 'yearStart', 'yearEnd', this.props.startColor, this.props.endColor);
         });
 
         if (!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))
