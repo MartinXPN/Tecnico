@@ -31,6 +31,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     private static COLOR = 'rgba(0,0,0,0.5)';
     private static HOVER_STROKE = 2;
     private static NORMAL_STROKE = 0.3;
+    private temperatureRange = [-0.5, 2];
 
     // @ts-ignore
     private ref: SVGSVGElement;
@@ -90,8 +91,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         }
         const scaledDifference = temperatureDifference.map(d => {
             let t = d[2];
-            if( t < -0.5 )      t = -0.5;
-            else if( t >= 2 )   t = 2;
+            if( t < this.temperatureRange[0] )          t = this.temperatureRange[0];
+            else if( t >= this.temperatureRange[1] )    t = this.temperatureRange[1];
             return [d[0], d[1], t];
         });
 
@@ -171,7 +172,6 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             {offset: "80%",     color: "yellow"},
             {offset: "100%",    color: "red"},
         ];
-        const range = [-0.5, 2];
         linearGradient.selectAll("stop")
             .data(colors)
             .enter()
@@ -192,8 +192,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .attr("dy", "1em")
             .text((d, i) => {
                 const currentOffset = +d.offset.slice(0, -1) / 100;
-                const total = range[1] - range[0];
-                const res = range[0] + currentOffset * total;
+                const total = this.temperatureRange[1] - this.temperatureRange[0];
+                const res = this.temperatureRange[0] + currentOffset * total;
                 if( i === colors.length - 1)    return res + '+℃';
                 else                            return res + '℃';
             })
@@ -204,7 +204,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         svg.append("text")
             .attr("transform", "translate(" + (w / 2) + " ," + (h - 10) + ")")
             .style("text-anchor", "middle")
-            .text('Temperature difference map for cities with records')
+            .text('Temperature difference map for places with records')
             .attr('font-weight', 'bold')
             .attr('font-size', '15px');
 
