@@ -145,6 +145,15 @@ export default class ScatterPlot extends Component<Props, State> {
             .attr('opacity', this.props.currentHoveredCountry === country ? ScatterPlot.OPACITIES.HIGHLIGHTED : ScatterPlot.OPACITIES.ENABLED);
     };
 
+    handleCountryTrend = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+                          startDataPoint: GdpTemperatureMeatGhgData | undefined,
+                          endDataPoint: GdpTemperatureMeatGhgData | undefined,
+                          country: string,
+                          startIdentifier: string, endIdentifier: string,
+                          startColor: string, endColor: string) => {
+
+    };
+
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
         const svg = d3.select(this.ref);
         const rect = this.ref.getBoundingClientRect();
@@ -216,6 +225,7 @@ export default class ScatterPlot extends Component<Props, State> {
 
             this.handleCountryYear(svg, start, country, 'yearStart', this.props.startColor);
             this.handleCountryYear(svg, end, country, 'yearEnd', this.props.endColor);
+            this.handleCountryTrend(svg, start, end, country, 'yearStart', 'yearEnd', this.props.startColor, this.props.endColor);
         });
 
         if (!_.isEqual(this.props.selectedCountries, this.state.countriesDisplayed))

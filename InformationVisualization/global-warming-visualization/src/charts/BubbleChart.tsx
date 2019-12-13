@@ -25,6 +25,12 @@ export default class BubbleChart extends ScatterPlot {
         svg.select(`image[title='${title}']`).remove();
     };
 
+    handleCountryTrend = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+                          startDataPoint: GdpTemperatureMeatGhgData | undefined,
+                          endDataPoint: GdpTemperatureMeatGhgData | undefined,
+                          country: string,
+                          startIdentifier: string, endIdentifier: string,
+                          startColor: string, endColor: string) => {};
 
     handleCountryYear = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
                          dataPoint: (GdpTemperatureMeatGhgData | undefined),
