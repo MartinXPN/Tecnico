@@ -163,22 +163,15 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .attr("opacity", 0.8)
             .style("fill", "url(#linear-gradient)");
 
-        this.heat.gradient({
-            0:      '#0000ff',
-            0.2:    '#5baaff',
-            0.4:    '#00FF00',
-            0.6:    '#fdff00',
-            0.8:    '#ff6200',
-            1:      '#ff0000',
-        });
         const colors = [
-            {offset: "0%",      color: "#0000ff",   title: '-0.5℃'},
-            {offset: "20%",     color: "#5baaff",   title: '0℃'},
-            {offset: "40%",     color: "#00FF00",   title: '0.5℃'},
-            {offset: "60%",     color: "#fdff00",   title: '1℃'},
-            {offset: "80%",     color: "#ff6200",   title: '1.5℃'},
-            {offset: "100%",    color: "#ff0000",   title: '2℃'},
+            {offset: "0%",      color: "blue"},
+            {offset: "40%",     color: "blue"},
+            {offset: "60%",     color: "cyan"},
+            {offset: "70%",     color: "lime"},
+            {offset: "80%",     color: "yellow"},
+            {offset: "100%",    color: "red"},
         ];
+        const range = [-0.5, 2];
         linearGradient.selectAll("stop")
             .data(colors)
             .enter()
@@ -189,7 +182,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         svg.selectAll('path')
             .data(colors).enter()
             .append('text')
-            .attr("transform", (d, i) => {
+            .attr("transform", d => {
                 let totalWidth = w * 0.9;
                 totalWidth *= 0.98; // edges are rounded
                 const initialOffset = w * 0.05;
@@ -197,7 +190,12 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 return "translate(" + (initialOffset + currentOffset * totalWidth) + " ," + (h - 55) + ")";
             })
             .attr("dy", "1em")
-            .text(d => d.title)
+            .text(d => {
+                const currentOffset = +d.offset.slice(0, -1) / 100;
+                const total = range[1] - range[0];
+                const res = range[0] + currentOffset * total;
+                return res + '℃';
+            })
             .attr('font-size', '10px');
 
 
