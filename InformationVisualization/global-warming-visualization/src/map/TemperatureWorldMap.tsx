@@ -88,8 +88,14 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                 temperatureDifference.push([lnglat[0], lnglat[1], end.get(cord) - start.get(cord)]);
             }
         }
+        const scaledDifference = temperatureDifference.map(d => {
+            let t = d[2];
+            if( t < -0.5 )      t = -0.5;
+            else if( t >= 2 )   t = 2;
+            return [d[0], d[1], t];
+        });
 
-        this.heat.data(temperatureDifference);
+        this.heat.data(scaledDifference);
         this.heat.radius(4, 4);
         this.heat.max(d3.max(temperatureDifference, d => d[2]));
         this.heat.draw(0.05);
@@ -158,20 +164,20 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .style("fill", "url(#linear-gradient)");
 
         this.heat.gradient({
-            0:      '#2247ff',
-            0.2:    '#3600ff',
-            0.4:    '#00FFFF',
-            0.6:    '#00FF00',
-            0.8:    '#FFFF00',
-            1:      '#FF0000',
+            0:      '#0000ff',
+            0.2:    '#5baaff',
+            0.4:    '#00FF00',
+            0.6:    '#fdff00',
+            0.8:    '#ff6200',
+            1:      '#ff0000',
         });
         const colors = [
-            {offset: "0%",      color: "#2247ff",   title: '-0.5℃'},
-            {offset: "20%",     color: "#3600ff",   title: '0℃'},
-            {offset: "40%",     color: "#00FFFF",   title: '0.5℃'},
-            {offset: "60%",     color: "#00FF00",   title: '1℃'},
-            {offset: "80%",     color: "#FFFF00",   title: '1.5℃'},
-            {offset: "100%",    color: "#FF0000",   title: '2℃'},
+            {offset: "0%",      color: "#0000ff",   title: '-0.5℃'},
+            {offset: "20%",     color: "#5baaff",   title: '0℃'},
+            {offset: "40%",     color: "#00FF00",   title: '0.5℃'},
+            {offset: "60%",     color: "#fdff00",   title: '1℃'},
+            {offset: "80%",     color: "#ff6200",   title: '1.5℃'},
+            {offset: "100%",    color: "#ff0000",   title: '2℃'},
         ];
         linearGradient.selectAll("stop")
             .data(colors)
