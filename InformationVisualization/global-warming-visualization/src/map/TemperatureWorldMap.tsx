@@ -165,13 +165,19 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .style("fill", "url(#linear-gradient)");
 
         const colors = [
-            {offset: "0%",      color: "blue"},
-            {offset: "40%",     color: "blue"},
-            {offset: "60%",     color: "cyan"},
-            {offset: "70%",     color: "lime"},
-            {offset: "80%",     color: "yellow"},
+            {offset: "0%",      color: "#0047b3"},
+            {offset: "25%",     color: "#4d94ff"},
+            {offset: "50%",     color: "grey"},
+            {offset: "75%",     color: "#ffe680"},
             {offset: "100%",    color: "red"},
         ];
+        this.heat.gradient({
+            0: "#0047b3",
+            0.25: "#4d94ff",
+            0.5: "grey",
+            0.75: "#ffe680",
+            1: "red",
+        });
         linearGradient.selectAll("stop")
             .data(colors)
             .enter()
