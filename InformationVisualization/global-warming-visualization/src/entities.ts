@@ -14,10 +14,10 @@ export interface GdpTemperatureMeatGhgData {
 }
 
 export interface TemperatureData {
-    dt: number;
-    Latitude: number;
-    Longitude: number;
-    AverageTemperature: number;
+    year: number;
+    latitude: number;
+    longitude: number;
+    temperature: number;
 }
 
 export interface CountryTemperatureData {

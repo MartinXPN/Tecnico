@@ -75,8 +75,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const start: Map<string, number> = new Map();
         const end: Map<string, number> = new Map();
         this.state.temperatureData.forEach((record: TemperatureData) => {
-            if (record.dt === this.props.yearStart) start.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
-            if (record.dt === this.props.yearEnd) end.set(record.Longitude + '#' + record.Latitude, record.AverageTemperature);
+            if (record.year === this.props.yearStart) start.set(record.longitude + '#' + record.latitude, record.temperature);
+            if (record.year === this.props.yearEnd) end.set(record.longitude + '#' + record.latitude, record.temperature);
         });
 
         const temperatureDifference = [];
@@ -97,7 +97,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         });
 
         this.heat.data(scaledDifference);
-        this.heat.radius(5, 5);
+        this.heat.radius(4, 4);
         this.heat.max(2);
         this.heat.draw(0.05);
     };
@@ -230,11 +230,11 @@ export default class TemperatureWorldMap extends Component<Props, State> {
                     let endTemperature = undefined;
                     if (this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearStart)) {
                         startTemperature = this.state.countryData.get(country).get(this.props.yearStart);
-                        description += `<div>${this.props.yearStart}: temperature was ${startTemperature}℃</div>`;
+                        description += `<div>${this.props.yearStart} mean temperature: ${startTemperature}℃</div>`;
                     }
                     if (this.state.countryData.has(country) && this.state.countryData.get(country).has(this.props.yearEnd)) {
                         endTemperature = this.state.countryData.get(country).get(this.props.yearEnd);
-                        description += `<div>${this.props.yearEnd}: temperature was ${endTemperature}℃</div>`;
+                        description += `<div>${this.props.yearEnd} mean temperature: ${endTemperature}℃</div>`;
                     }
                     if (startTemperature && endTemperature)
                         description += `<div>Temperature change: ${Math.round((endTemperature - startTemperature) * 100) / 100}℃</div>`;
