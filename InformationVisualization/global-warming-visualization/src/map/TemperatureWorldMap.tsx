@@ -42,6 +42,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     // @ts-ignore
     private projection: d3.GeoProjection;
     private tooltip: Tooltip = new Tooltip({});
+    private currentAnimationHandle: number = -1;
+    private animationMilliseconds = 200;
 
     // @ts-ignore
     state = {
@@ -96,10 +98,33 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             return [d[0], d[1], t];
         });
 
-        this.heat.data(scaledDifference);
-        this.heat.radius(4, 4);
-        this.heat.max(2);
-        this.heat.draw(0.05);
+
+        const previousData: Array<[number, number, number]> = this.heat._data;
+        if(!previousData || previousData.length === 0) {
+            this.heat.data(scaledDifference);
+            this.heat.draw(0.05);
+            return;
+        }
+
+        const startTime = Date.now();
+        const animatedDraw = () => {
+            const currentTime = Date.now();
+            if(currentTime > startTime + this.animationMilliseconds)
+                return;
+            const delta = (currentTime - startTime) / this.animationMilliseconds;
+            const newData = previousData.map((prev, i) => {
+                return [
+                    (1 - delta) * prev[0] + delta * scaledDifference[i][0],
+                    (1 - delta) * prev[1] + delta * scaledDifference[i][1],
+                    (1 - delta) * prev[2] + delta * scaledDifference[i][2],
+                ];
+            });
+            this.heat.data(newData);
+            this.heat.draw(0.05);
+            this.currentAnimationHandle = window.requestAnimationFrame(animatedDraw);
+        };
+        // window.cancelAnimationFrame(this.currentAnimationHandle);
+        this.currentAnimationHandle = window.requestAnimationFrame(animatedDraw);
     };
 
 
@@ -151,6 +176,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const canvasLayer = div.append('canvas').attr('id', 'heatmap').attr('width', w).attr('height', h);
         const canvas = canvasLayer.node();
         this.heat = simpleheat(canvas);
+        this.heat.radius(4, 4);
+        this.heat.max(this.temperatureRange[1]);
 
         // color-range
         const defs = svg.append("defs");
