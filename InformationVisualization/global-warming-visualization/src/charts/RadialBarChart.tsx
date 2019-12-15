@@ -29,7 +29,7 @@ function scaleRadial(domain: number[], range: number[]) {
 }
 
 export default class RadialBarChart extends Component<Props, State> {
-    private static SEA_LEVEL_COLOR = "#1484b3";
+    private static SEA_LEVEL_COLOR = "#006994";
     private static GLACIER_MASS_COLOR = "#b32019";
     private static OPACITIES = {DISABLED: 0.1, ENABLED: 0.7, HIGHLIGHTED: 1};
     protected title = 'Sea level and glaciers mass';

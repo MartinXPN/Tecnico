@@ -31,7 +31,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
     private static COLOR = 'rgba(0,0,0,0.5)';
     private static HOVER_STROKE = 2;
     private static NORMAL_STROKE = 0.3;
-    private temperatureRange = [-0.5, 2];
+    private temperatureRange = [-0.5, 2.5];
 
     // @ts-ignore
     private ref: SVGSVGElement;
@@ -165,17 +165,17 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .style("fill", "url(#linear-gradient)");
 
         const colors = [
-            {offset: "0%",      color: "#0047b3"},
-            {offset: "25%",     color: "#4d94ff"},
-            {offset: "50%",     color: "grey"},
-            {offset: "75%",     color: "#ffe680"},
+            {offset: "0%",      color: "#1f1faf"},
+            {offset: "25%",     color: "blue"},
+            {offset: "50%",     color: "cyan"},
+            {offset: "75%",     color: "yellow"},
             {offset: "100%",    color: "red"},
         ];
         this.heat.gradient({
-            0: "#0047b3",
-            0.25: "#4d94ff",
-            0.5: "grey",
-            0.75: "#ffe680",
+            0: "#1f1faf",
+            0.25: "blue",
+            0.5: "cyan",
+            0.75: "yellow",
             1: "red",
         });
         linearGradient.selectAll("stop")
