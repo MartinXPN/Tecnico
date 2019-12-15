@@ -38,8 +38,8 @@ export default class App extends Component<Props, State> {
         data: undefined,
         yearStart: 1992,
         yearEnd: 2011,
-        startColor: '#428f37',
-        endColor: '#34568f',
+        startColor: '#34568f',
+        endColor: '#EF6C00',
         selectedCountries: new Set(['Spain', 'Portugal', 'United States', 'Armenia', 'France']),
         hoveredCountry: undefined,
     };
