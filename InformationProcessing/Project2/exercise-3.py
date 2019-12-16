@@ -223,8 +223,8 @@ def avg_precisoin(pred, targ):
     for i, p in enumerate(pred):
         if p in targ:
             nb_correct += 1
-        res += nb_correct / (i + 1)
-    return 1. / len(targ) * res
+            res += nb_correct / (i + 1)
+    return res / len(targ)
 
 
 test_data['doc_id'] = [i.split(':')[0] for i in test_data.index]
