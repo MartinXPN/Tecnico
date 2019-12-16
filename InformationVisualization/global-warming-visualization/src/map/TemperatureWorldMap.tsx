@@ -235,11 +235,19 @@ export default class TemperatureWorldMap extends Component<Props, State> {
 
         // map
         svg.append("text")
-            .attr("transform", "translate(" + (w / 2) + " ," + (h - 10) + ")")
+            .attr("transform", "translate(" + (w / 2) + " ," + (h - 15) + ")")
             .style("text-anchor", "middle")
-            .text('Temperature difference map for places with records')
+            .text('Temperature difference map')
             .attr('font-weight', 'bold')
             .attr('font-size', '15px');
+
+        svg.append("text")
+            .attr("transform", "translate(" + (w / 2) + " ," + (h - 5) + ")")
+            .style("text-anchor", "middle")
+            .text('*The displayed information is the difference between the two selected years, for the geographic locations. The data does not cover the whole world.')
+            .attr('font-weight', 'bold')
+            .attr('font-size', '8px');
+
 
         d3.json('./world_countries.json').then(data => {
             this.map = svg.append("g")
