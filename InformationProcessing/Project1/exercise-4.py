@@ -30,14 +30,8 @@ pd.set_option('display.width', 1000)
 pd.set_option('display.max_colwidth', 500)
 
 
-# In[2]:
-
-
 from nltk.stem.snowball import SnowballStemmer
 sno = SnowballStemmer('english')
-
-
-# In[3]:
 
 
 def read(directory):
@@ -53,9 +47,6 @@ def read(directory):
     return docs
 
 
-# In[4]:
-
-
 train_sentences = read('ake-datasets/datasets/Inspec/train')
 test_sentences = read('ake-datasets/datasets/Inspec/test')
 len(train_sentences), len(test_sentences)
@@ -68,13 +59,7 @@ len(train_sentences), len(test_sentences)
 #     * Class: 1 if it's a target keyphrase 0 if not
 # * Use xgboost for the classification
 
-# In[5]:
-
-
 pattern = re.compile(r'(((\w+~JJ)* (\w+~NN)+ (\w+~IN))?(\w+~JJ)+ (\w+~NN)+)+')
-
-
-# In[6]:
 
 
 train_candidates = {doc_id: [candidate[0] for candidate in re.findall(pattern, doc)] for doc_id, doc in train_sentences.items()}
@@ -94,9 +79,6 @@ test_frequencies = {doc_id: Counter(
                                 [' '.join(gram) for gram in ngrams(doc.split(), 2)] + \
                                 [' '.join(gram) for gram in ngrams(doc.split(), 3)])
                     for doc_id, doc in test_sentences.items()}
-
-
-# In[7]:
 
 
 def tf(d, t, frequencies):
@@ -133,15 +115,6 @@ def bm25(t, d, frequencies, background_frequencies, k1=1.2, b=0.75):
     return tf * idf
 
 
-# In[8]:
-
-
-tf(t='datum', d='1390', frequencies=train_frequencies), idf(t='datum', frequencies=train_frequencies), bm25(t='datum', d='1390', frequencies=train_frequencies, background_frequencies=train_frequencies)
-
-
-# In[9]:
-
-
 train_data = pd.DataFrame([
     {'id': doc_id + ':' + str(i), 'token': candidate} 
     for doc_id, candidates in train_candidates.items()
@@ -150,9 +123,6 @@ train_data = pd.DataFrame([
 train_data.set_index('id', inplace=True)
 print(train_data.shape)
 train_data.head(100)
-
-
-# In[10]:
 
 
 test_data = pd.DataFrame([
@@ -165,18 +135,12 @@ print(test_data.shape)
 test_data.head()
 
 
-# In[11]:
-
-
 train_data['tf'] = [tf(d=i.split(':')[0], t=row['token'], frequencies=train_frequencies) for i, row in tqdm(train_data.iterrows(), total=len(train_data))]
 train_data['idf'] = [idf(t=row['token'], frequencies=train_frequencies) for i, row in tqdm(train_data.iterrows(), total=len(train_data))]
 train_data['tf-idf'] = train_data['tf'] * train_data['idf']
 train_data['bm25'] = [bm25(t=row['token'], d=i.split(':')[0], frequencies=train_frequencies, background_frequencies=train_frequencies) for i, row in tqdm(train_data.iterrows(), total=len(train_data))]
 train_data['len'] = [len(row['token']) for i, row in tqdm(train_data.iterrows(), total=len(train_data))]
 train_data.head()
-
-
-# In[12]:
 
 
 test_data['tf'] = [tf(d=i.split(':')[0], t=row['token'], frequencies=test_frequencies) for i, row in tqdm(test_data.iterrows(), total=len(test_data))]
@@ -187,17 +151,11 @@ test_data['len'] = [len(row['token']) for i, row in tqdm(test_data.iterrows(), t
 test_data.head()
 
 
-# In[13]:
-
-
 with open('ake-datasets/datasets/Inspec/references/train.uncontr.json', 'r') as f:
     target = json.load(f)
     target = {doc_id: [k[0] for k in keyphrases] for doc_id, keyphrases in target.items()}
 train_data['class'] = [int(row['token'] in target[i.split(':')[0]]) for i, row in tqdm(train_data.iterrows(), total=len(train_data))]
 train_data.head()
-
-
-# In[14]:
 
 
 with open('ake-datasets/datasets/Inspec/references/test.uncontr.json', 'r') as f:
@@ -208,15 +166,7 @@ test_data.head()
 
 
 # ## xgboost
-
-# In[15]:
-
-
 import xgboost as xgb
-
-
-# In[16]:
-
 
 X_train = train_data.loc[:, ~train_data.columns.isin(['class', 'id', 'token'])].values
 y_train = train_data['class'].values
@@ -228,22 +178,10 @@ D_train = xgb.DMatrix(X_train, label=y_train)
 D_test = xgb.DMatrix(X_test, label=y_test)
 
 
-# In[17]:
-
-
-y_train.shape
-
-
-# In[18]:
-
-
 from sklearn.utils.class_weight import compute_class_weight
 class_weights = compute_class_weight('balanced', np.unique(y_train), y_train)
 
 weight = [class_weights[c] for c in y_train]
-
-
-# In[19]:
 
 
 model = xgb.XGBClassifier(max_depth=5, gpu_id=0)
@@ -255,23 +193,9 @@ model.fit(X_train, y_train,
           early_stopping_rounds=10)
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[20]:
-
-
 res = model.predict(X_test, output_margin=True)
 res_pred = {(i.split(':')[0], row['token']):  prob for (i, row), prob in zip(test_data.iterrows(), res)}
+
 
 def score(t, d):
     """
@@ -280,17 +204,6 @@ def score(t, d):
     """
     return res_pred[(d, t)] if (d, t) in res_pred else 0
 
-score('literature', '193'), score('bikct', '193')
-
-
-# In[21]:
-
-
-score('out-of-print', '193')
-
-
-# In[22]:
-
 
 def extract_keyphrases(doc_id, nb_keywords=5):
     scores = {candidate: score(candidate, doc_id) for candidate in test_candidates[doc_id]}
@@ -298,43 +211,22 @@ def extract_keyphrases(doc_id, nb_keywords=5):
     return [keyphrase for keyphrase, score in scores]
 
 predictions = {doc_id: extract_keyphrases(doc_id, nb_keywords=5) for doc_id, doc in tqdm(test_sentences.items())}
-
-
-# ## Evaluate
-
-# In[23]:
-
-
 predictions = {doc_id: [sno.stem(candidate) for candidate in candidates] for doc_id, candidates in predictions.items()}
 target = {doc_id: [sno.stem(candidate) for candidate in candidates] for doc_id, candidates in target.items()}
-
-
-# In[24]:
-
-
-predictions['193'], target['193']
-
-
-# In[25]:
-
 
 def avg_precisoin(pred, targ):
     res, nb_correct = 0, 0
     for i, p in enumerate(pred):
         if p in targ:
             nb_correct += 1
-        res += nb_correct / (i + 1)
-    return 1. / len(targ) * res
-
-
-# In[26]:
+            res += nb_correct / (i + 1)
+    return res / len(targ)
 
 
 results = []
 for doc_id in sorted(predictions.keys()):
     p = set(predictions[doc_id])
     t = set(target[doc_id])
-    at_5 = set(target[doc_id][:5])
 
     # We always predict 5 keywords
     precision = 0 if len(p) == 0 else len(p.intersection(t)) / len(p)
@@ -344,7 +236,7 @@ for doc_id in sorted(predictions.keys()):
         'precision':   precision,
         'recall':      recall,
         'f1':          0 if (precision + recall) == 0 else 2 * precision * recall / (precision + recall),
-        'precision@5': len(p.intersection(at_5)) / 5.,
+        'precision@5': len(p.intersection(t)) / 5.,
         'av_prec':     avg_precisoin(p, t)
     })
 
@@ -359,11 +251,5 @@ print('Precision: {:.2f} Recall: {:.2f} F1: {:.2f}   precision@5: {:.2f}  MAP: {
     results["av_prec"].mean()
 ))
 print('--------------Mean-------------')
-results
-
-
-# In[ ]:
-
-
-
+print(results)
 

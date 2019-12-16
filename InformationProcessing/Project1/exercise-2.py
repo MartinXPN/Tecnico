@@ -44,8 +44,8 @@ def avg_precisoin(pred, targ):
     for i, p in enumerate(pred):
         if p in targ:
             nb_correct += 1
-        res += nb_correct / (i + 1)
-    return 1. / len(targ) * res
+            res += nb_correct / (i + 1)
+    return res / len(targ)
 
 
 def evaluate(predictions, target):
@@ -53,7 +53,6 @@ def evaluate(predictions, target):
     for doc_id in sorted(predictions.keys()):
         p = set(predictions[doc_id])
         t = set(target[doc_id])
-        at_5 = set(target[doc_id][:5])
 
         # We always predict 5 keywords
         precision = 0 if len(p) == 0 else len(p.intersection(t)) / len(p)
@@ -63,7 +62,7 @@ def evaluate(predictions, target):
             'precision': precision,
             'recall': recall,
             'f1': 0 if (precision + recall) == 0 else 2 * precision * recall / (precision + recall),
-            'precision@5': len(p.intersection(at_5)) / 5.,
+            'precision@5': len(p.intersection(t)) / 5.,
             'av_prec': avg_precisoin(p, t)
         })
 
