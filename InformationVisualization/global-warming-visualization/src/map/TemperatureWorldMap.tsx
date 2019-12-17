@@ -5,6 +5,8 @@ import * as simpleheat from 'simpleheat';
 import {CountryTemperatureData, TemperatureData} from "../entities";
 import Tooltip from "../tooltip/Tooltip";
 import './TemperatureWorldMap.css';
+import _ from "lodash";
+
 
 interface Props {
     width: number | string;
@@ -20,7 +22,6 @@ interface Props {
 }
 
 interface State {
-    countriesDisplayed: Set<string>;
     currentlyHoveredCountry: string | undefined;
     temperatureData: d3.DSVParsedArray<TemperatureData>;
     countryData: Map<string, Map<number, number>>;
@@ -29,12 +30,12 @@ interface State {
 export default class TemperatureWorldMap extends Component<Props, State> {
     private static opacity = {
         DISABLED: 0.4,
-        ENABLED: 0.8,
+        ENABLED: 0.9,
         HIGHLIGHTED: 1,
     };
     private static stroke = {
         DISABLED: 0.3,
-        ENABLED: 0.3,
+        ENABLED: 0.5,
         HIGHLIGHTED: 2,
     };
     private static COLOR = 'rgba(0,0,0,0.5)';
@@ -53,7 +54,6 @@ export default class TemperatureWorldMap extends Component<Props, State> {
 
     // @ts-ignore
     state = {
-        countriesDisplayed: new Set<string>(),
         currentlyHoveredCountry: undefined,
         temperatureData: [],
         countryData: new Map(),
@@ -74,9 +74,18 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         this.map.attr('d', path)
             .style('fill', TemperatureWorldMap.COLOR)
             .style('stroke', 'white')
-            .style('opacity', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.opacity.HIGHLIGHTED : TemperatureWorldMap.opacity.DISABLED)
-            .style('stroke-width', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.stroke.HIGHLIGHTED : TemperatureWorldMap.stroke.DISABLED);
-
+            .style('opacity', (d: any) => {
+                const country = d.properties.name;
+                if( country === this.state.currentlyHoveredCountry ) return TemperatureWorldMap.opacity.HIGHLIGHTED;
+                if( this.props.selectedCountries.has(country) )     return TemperatureWorldMap.opacity.ENABLED;
+                return TemperatureWorldMap.opacity.DISABLED;
+            })
+            .style('stroke-width', (d: any) => {
+                const country = d.properties.name;
+                if( country === this.state.currentlyHoveredCountry ) return TemperatureWorldMap.stroke.HIGHLIGHTED;
+                if( this.props.selectedCountries.has(country) )     return TemperatureWorldMap.stroke.ENABLED;
+                return TemperatureWorldMap.stroke.DISABLED;
+            });
     };
 
     drawHeatMap = () => {
@@ -139,10 +148,11 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         const map = d3.select(this.ref);
 
         if (this.state.currentlyHoveredCountry !== this.props.hoveredCountry) {
-            if (this.state.currentlyHoveredCountry) {
+            const currentHovered = this.state.currentlyHoveredCountry;
+            if (currentHovered) {
                 map.select(`[title='${this.state.currentlyHoveredCountry}']`)
-                    .style('opacity', TemperatureWorldMap.opacity.DISABLED)
-                    .style('stroke-width', TemperatureWorldMap.stroke.DISABLED);
+                    .style('opacity', this.props.selectedCountries.has(currentHovered) ? TemperatureWorldMap.opacity.ENABLED : TemperatureWorldMap.opacity.DISABLED)
+                    .style('stroke-width', this.props.selectedCountries.has(currentHovered) ? TemperatureWorldMap.stroke.ENABLED : TemperatureWorldMap.stroke.DISABLED);
             }
 
             if (this.props.hoveredCountry) {
@@ -152,6 +162,10 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             }
 
             this.setState({currentlyHoveredCountry: this.props.hoveredCountry});
+        }
+
+        if( !_.isEqual(this.props.selectedCountries, prevProps.selectedCountries) ) {
+            this.drawMap();
         }
 
         /// years were changed => need to render the whole map colors from scratch
