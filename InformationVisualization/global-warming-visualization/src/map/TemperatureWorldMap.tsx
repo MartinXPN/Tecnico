@@ -20,24 +20,30 @@ interface Props {
 }
 
 interface State {
+    countriesDisplayed: Set<string>;
     currentlyHoveredCountry: string | undefined;
     temperatureData: d3.DSVParsedArray<TemperatureData>;
     countryData: Map<string, Map<number, number>>;
 }
 
 export default class TemperatureWorldMap extends Component<Props, State> {
-    private static HOVER_OPACITY = 0.8;
-    private static NORMAL_OPACITY = 0.5;
+    private static opacity = {
+        DISABLED: 0.4,
+        ENABLED: 0.8,
+        HIGHLIGHTED: 1,
+    };
+    private static stroke = {
+        DISABLED: 0.3,
+        ENABLED: 0.3,
+        HIGHLIGHTED: 2,
+    };
     private static COLOR = 'rgba(0,0,0,0.5)';
-    private static HOVER_STROKE = 2;
-    private static NORMAL_STROKE = 0.3;
     private temperatureRange = [-0.5, 2.5];
 
     // @ts-ignore
     private ref: SVGSVGElement;
     // @ts-ignore
     private map: d3.Selection<SVGPathElement, unknown, SVGGElement, unknown>;
-    // @ts-ignore
     private heat: any;
     // @ts-ignore
     private projection: d3.GeoProjection;
@@ -47,6 +53,7 @@ export default class TemperatureWorldMap extends Component<Props, State> {
 
     // @ts-ignore
     state = {
+        countriesDisplayed: new Set<string>(),
         currentlyHoveredCountry: undefined,
         temperatureData: [],
         countryData: new Map(),
@@ -67,8 +74,8 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         this.map.attr('d', path)
             .style('fill', TemperatureWorldMap.COLOR)
             .style('stroke', 'white')
-            .style('opacity', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.HOVER_OPACITY : TemperatureWorldMap.NORMAL_OPACITY)
-            .style('stroke-width', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.HOVER_STROKE : TemperatureWorldMap.NORMAL_STROKE);
+            .style('opacity', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.opacity.HIGHLIGHTED : TemperatureWorldMap.opacity.DISABLED)
+            .style('stroke-width', (d: any) => d.properties.name === this.state.currentlyHoveredCountry ? TemperatureWorldMap.stroke.HIGHLIGHTED : TemperatureWorldMap.stroke.DISABLED);
 
     };
 
@@ -134,14 +141,14 @@ export default class TemperatureWorldMap extends Component<Props, State> {
         if (this.state.currentlyHoveredCountry !== this.props.hoveredCountry) {
             if (this.state.currentlyHoveredCountry) {
                 map.select(`[title='${this.state.currentlyHoveredCountry}']`)
-                    .style('opacity', TemperatureWorldMap.NORMAL_OPACITY)
-                    .style('stroke-width', TemperatureWorldMap.NORMAL_STROKE);
+                    .style('opacity', TemperatureWorldMap.opacity.DISABLED)
+                    .style('stroke-width', TemperatureWorldMap.stroke.DISABLED);
             }
 
             if (this.props.hoveredCountry) {
                 map.select(`[title='${this.props.hoveredCountry}']`)
-                    .style('opacity', TemperatureWorldMap.HOVER_OPACITY)
-                    .style('stroke-width', TemperatureWorldMap.HOVER_STROKE);
+                    .style('opacity', TemperatureWorldMap.opacity.HIGHLIGHTED)
+                    .style('stroke-width', TemperatureWorldMap.stroke.HIGHLIGHTED);
             }
 
             this.setState({currentlyHoveredCountry: this.props.hoveredCountry});
@@ -245,7 +252,6 @@ export default class TemperatureWorldMap extends Component<Props, State> {
             .attr("transform", "translate(" + (w / 2) + " ," + (h - 5) + ")")
             .style("text-anchor", "middle")
             .text('*The displayed information is the difference between the two selected years, for the geographic locations. The data does not cover the whole world.')
-            .attr('font-weight', 'bold')
             .attr('font-size', '8px');
 
 
