@@ -82,7 +82,7 @@ export default class App extends Component<Props, State> {
                 <SplitPane className="content" split="vertical" minSize='20%' defaultSize='40%' maxSize='50%'
                            allowResize={true}>
                     <div style={{width: '100%', height: '100%'}}>
-                        <div className="chart-box">
+                        <div className="chart-box" style={{paddingTop: "20px"}}>
                             {this.state.sea2glaciers &&
                             <RadialBarChart
                                 width='80%' height='90%'
