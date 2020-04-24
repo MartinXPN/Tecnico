@@ -1,0 +1,5 @@
+a) Changing the analysis window lenght from 20 ms to 10 ms produces a residual with more signal content than the previous (usually the spikes are taller). o residuo fica mais intelegivel tbm
+
+b) The residue for half the windows interval has higher energy value. The formants are more well defined in the one with bigger window interval (the other is flatter).
+
+c) The one with prediction order of 10 has more well defined formants than the one with 16. Also the intelegibility of the first is better than the latter.
