@@ -26,17 +26,15 @@ ostream& operator << (ostream& out, const pair<T1, T2>& p) {
 template <class T>
 class MaxSegmentTree {
 private:
-    const static T INF = 1000000000;
     size_t size = 1;            /// number of the hidden nodes
     vector <T> tree;            /// values in the tree
     vector <size_t> label2id;   /// label to index mapping (labels will be the positions when dfsing in HL decomposition)
     size_t curId = 0;
 
     T get(size_t v, size_t l, size_t r, size_t ql, size_t qr) {
-        printf( "get( %ld, %ld, %ld, %ld, %ld)", v, l, r, ql, qr );
+        // printf( "get( %ld, %ld, %ld, %ld, %ld)\n", v, l, r, ql, qr );   fflush(stdout);
         assert( 1 <= v && v <= tree.size() );
-        printf( "YO\n" );
-        fflush(stdout);
+
         if( l >= ql && r <= qr )    return tree[v];
         if( r < ql || l > qr )      return -INF;
         return max( get( 2 * v, l, (l+r) / 2, ql, qr ),
@@ -44,13 +42,14 @@ private:
     }
 
 public:
+    const static T INF = 1000000000;
     explicit MaxSegmentTree(size_t n) {
         assert(n >= 1);
         while( size < n )
             size *= 2;
 
-        tree.resize(2 * size, -INF);
-        label2id.resize(n, -1);
+        tree.resize(2 * size + 1, -INF);
+        label2id.resize(n + 1, -1);
     }
 
     void build() {
@@ -61,7 +60,8 @@ public:
     }
 
     void add(size_t label, int val) {
-        assert(0 <= curId && curId < size);
+        printf( "add( %ld, %d)\n", label, val );    fflush(stdout);
+        assert(0 <= curId && curId <= size);
         assert(0 <= label && label < label2id.size());
         label2id[label] = curId;
         tree[size + curId] = val;
@@ -88,6 +88,79 @@ public:
     }
 };
 
+
+template <class T>
+class HeavyLight {
+private:
+    vector< vector <pair <int, T> > > g;
+    vector <int> parent;
+    vector <int> depth;
+    vector <int> heavy;
+    vector <int> head;
+    MaxSegmentTree <T> maxSegments;
+
+
+    int dfs(int v) {
+        printf("dfs( %d )\n", v);   fflush(stdout);
+        int size = 1;
+        int maxSize = 0;
+        for (auto [to, w] : g[v]) {
+            if (to != parent[v]) {
+                parent[to] = v, depth[to] = depth[v] + 1;
+                int childSize = dfs(to);
+                size += childSize;
+                if (childSize > maxSize)
+                    maxSize = childSize, heavy[v] = to;
+            }
+        }
+        return size;
+    }
+
+    void decompose(int v, int w, int h) {
+        head[v] = h;
+        maxSegments.add(v, w);
+        for (auto [to, w] : g[v]) {
+            if( to == parent[v] )   continue;
+            if( to == heavy[v] )    decompose(to, w, h);
+            else                    decompose(to, w, to);
+        }
+    }
+
+public:
+    explicit HeavyLight(const vector<vector<pair<int, T> > > &graph) : maxSegments(graph.size()) {
+        const int n = graph.size();
+        g = graph;
+        parent.resize(n, -1);
+        depth.resize(n, -1);
+        heavy.resize(n, -1);
+        head.resize(n, -1);
+
+        dfs(0);
+        decompose(0, -MaxSegmentTree<T>::INF, 0);
+        maxSegments.build();
+    }
+
+    int query(int a, int b) {
+        int res = -MaxSegmentTree<T>::INF;
+        for (; head[a] != head[b]; b = parent[ head[b] ]) {
+            if (depth[ head[a] ] > depth[ head[b] ])
+                swap(a, b);
+
+            res = max(res, maxSegments.query(head[b], b));
+        }
+        if (depth[a] > depth[b])
+            swap(a, b);
+        res = max(res, maxSegments.query(a, b));
+        return res;
+    }
+
+    friend ostream& operator << (ostream& out, const HeavyLight<T>& hl) {
+        out << hl.maxSegments;
+        return out;
+    }
+};
+
+
 int main() {
     freopen("sample.in", "r", stdin);
     int n;
@@ -108,15 +181,8 @@ int main() {
     db(MST);
 
 
-    MaxSegmentTree <int> maxSegments(n);
-    for( int i=0; i < 8; ++i )
-        maxSegments.add(7-i, i);
-
-    maxSegments.build();
-    cout << maxSegments << endl;
-
-    cout << maxSegments.query(7, 5);
-
+    HeavyLight <int> hl(g);
+    cout << hl << endl;
 
     int q;
     cin >> q;
@@ -125,8 +191,7 @@ int main() {
         int a, b, w;
         cin >> a >> b >> w;
 
-        /// TODO: query max element in the path from a to b
-        int maxWeight = 4;
+        int maxWeight = hl.query(a, b);
 
         if( w >= maxWeight )    cout << MST << " " << MST - maxWeight + w << endl;  /// no change in the MST
         else                    cout << MST - maxWeight + w << " " << MST << endl;  /// MST changed and became second min
