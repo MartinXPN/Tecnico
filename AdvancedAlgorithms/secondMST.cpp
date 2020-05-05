@@ -100,14 +100,15 @@ private:
     MaxSegmentTree <T> maxSegments;
 
 
-    int dfs(int v) {
+    size_t dfs(int v) {
         printf("dfs( %d )\n", v);   fflush(stdout);
-        int size = 1;
-        int maxSize = 0;
+        size_t size = 1;
+        size_t maxSize = 0;
         for (auto [to, w] : g[v]) {
             if (to != parent[v]) {
-                parent[to] = v, depth[to] = depth[v] + 1;
-                int childSize = dfs(to);
+                parent[to] = v;
+                depth[to] = depth[v] + 1;
+                size_t childSize = dfs(to);
                 size += childSize;
                 if (childSize > maxSize)
                     maxSize = childSize, heavy[v] = to;
@@ -140,8 +141,8 @@ public:
         maxSegments.build();
     }
 
-    int query(int a, int b) {
-        int res = -MaxSegmentTree<T>::INF;
+    T query(int a, int b) {
+        T res = -MaxSegmentTree<T>::INF;
         for (; head[a] != head[b]; b = parent[ head[b] ]) {
             if (depth[ head[a] ] > depth[ head[b] ])
                 swap(a, b);
@@ -155,7 +156,7 @@ public:
     }
 
     friend ostream& operator << (ostream& out, const HeavyLight<T>& hl) {
-        out << hl.maxSegments;
+        out << "Max segment tree:\n" << hl.maxSegments;
         return out;
     }
 };
