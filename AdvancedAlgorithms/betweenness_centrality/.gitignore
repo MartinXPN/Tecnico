@@ -8,6 +8,14 @@ Data/
 !src/lib/*
 !src/lib/
 
+
+# Generated cython code
+graph.cpp
+graph_struct.cpp
+metrics.cpp
+PrepareBatchGraph.cpp
+utils.cpp
+
 # C extensions
 *.so
 
