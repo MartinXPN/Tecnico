@@ -4,9 +4,12 @@
 
 @author: fanchangjun
 """
-import networkx as nx
-import time
+import os
 import sys
+import time
+import random
+
+import networkx as nx
 import numpy as np
 from tqdm import tqdm
 import graph
@@ -17,6 +20,16 @@ import pickle as cp
 import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior()
+
+# For reproducibility
+SEED = 42
+tf.reset_default_graph()
+tf.set_random_seed(SEED)
+random.seed(SEED)
+np.random.seed(SEED)
+os.environ['PYTHONHASHSEED']=str(SEED)
+os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
+
 
 EMBEDDING_SIZE = 128  # embedding dimension
 LEARNING_RATE = 0.0001
