@@ -1,6 +1,12 @@
+InformationVisualization/global-warming-visualization/.firebase/
+InformationProcessing/fastText/
 InformationVisualization/data-integration/
 InformationProcessing/Project1/ake-datasets/
 InformationVisualization/data_processing/GlobalLandTemperaturesByCity.csv
+
+# C/C++
+**/cmake-build-debug/
+**/cmake-build-release/
 
 # R and RStudio files
 .Rproj.user
@@ -14,7 +20,6 @@ InformationVisualization/data_processing/GlobalLandTemperaturesByCity.csv
 .pyc
 
 .idea/
-lib/*
 data/*
 
 # Created by .ignore support plugin (hsz.mobi)
