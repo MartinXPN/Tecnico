@@ -27,7 +27,7 @@ tf.reset_default_graph()
 tf.set_random_seed(SEED)
 random.seed(SEED)
 np.random.seed(SEED)
-os.environ['PYTHONHASHSEED']=str(SEED)
+os.environ['PYTHONHASHSEED'] = str(SEED)
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
 
 
