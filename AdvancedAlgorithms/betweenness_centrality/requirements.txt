@@ -4,3 +4,4 @@ scipy
 numpy
 pandas
 tqdm
+tensorflow>=2.3.0 # Currently using tf-nightly
