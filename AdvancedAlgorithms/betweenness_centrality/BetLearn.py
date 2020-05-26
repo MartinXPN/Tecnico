@@ -23,12 +23,6 @@ import graph
 import metrics
 import utils
 from layers import DrBCRNN
-# tf.executing_eagerly()
-tf.compat.v2.enable_v2_behavior()
-# tf.config.experimental_run_functions_eagerly(True)
-
-print('tensorflow version:', tf.__version__)
-# exit(0)
 
 # For reproducibility
 SEED = 42
@@ -193,16 +187,8 @@ class BetLearn:
         assert (len(prepareBatchGraph.pair_ids_src) == len(prepareBatchGraph.pair_ids_tgt))
         return prepareBatchGraph.idx_map_list
 
-    def SetupTrain(self, g_list, label_log):
-        self.inputs['label'] = label_log
-        self.SetupBatchGraph(g_list)
-
-    def SetupPred(self, g_list):
-        idx_map_list = self.SetupBatchGraph(g_list)
-        return idx_map_list
-
     def Predict(self, g_list):
-        idx_map_list = self.SetupPred(g_list)
+        idx_map_list = self.SetupBatchGraph(g_list)
         result = self.model.predict_on_batch(x=(self.inputs['node_feat'],
                                                 self.inputs['aux_feat'],
                                                 self.inputs['n2nsum_param']))
@@ -220,7 +206,8 @@ class BetLearn:
         for id in id_list:
             Betw_Label_List += self.TrainBetwList[id]
         label = np.array(Betw_Label_List)
-        self.SetupTrain(g_list, label)
+        self.inputs['label'] = label
+        self.SetupBatchGraph(g_list)
 
         batch_size = len(self.inputs['label'])
         y_true = np.concatenate([
