@@ -6,9 +6,7 @@ from libc.stdlib cimport malloc
 from libc.stdlib cimport free
 from graph cimport Graph
 from scipy.sparse import coo_matrix
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
-
+import tensorflow as tf
 
 
 cdef class py_sparseMatrix:
@@ -122,8 +120,4 @@ cdef class py_PrepareBatchGraph:
         rowNum= matrix.rowNum
         colNum= matrix.colNum
         indices = np.mat([rowIndex, colIndex]).transpose()
-        return tf.SparseTensorValue(indices, data, (rowNum,colNum))
-
-
-
-
+        return tf.sparse.SparseTensor(indices, data, (rowNum,colNum))
