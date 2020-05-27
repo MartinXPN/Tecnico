@@ -31,13 +31,9 @@ os.environ['PYTHONHASHSEED'] = str(SEED)
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
 
 
-EMBEDDING_SIZE = 128  # embedding dimension
-LEARNING_RATE = 0.0001
 BATCH_SIZE = 16
 max_bp_iter = 5  # neighbor propagation steps
 
-REG_HIDDEN = int(EMBEDDING_SIZE / 2)  # hidden dimension in the  MLP decoder
-initialization_stddev = 0.01
 NUM_MIN = 100  # minimum training scale (node set size)
 NUM_MAX = 200  # maximum training scale (node set size)
 MAX_ITERATION = 10000  # training iterations
@@ -56,7 +52,7 @@ JK = 1  # layer aggregation,
 # 3:mean_pooling;
 # 4:LSTM with attention
 node_feat_dim = 3  # initial node features, [Dc,1,1]
-aux_feat_dim = 4  # extra node features in the hidden layer in the decoder, [Dc,CI1,CI2,1]
+aux_feat_dim = 4   # extra node features in the hidden layer in the decoder, [Dc,CI1,CI2,1]
 
 
 @tf.function
@@ -76,8 +72,8 @@ def pairwise_ranking_crossentropy_loss(y_true, y_pred):
 
 
 def create_drbc_model():
-    input_node_features = Input(shape=(3,))
-    input_aux_features = Input(shape=(4,))
+    input_node_features = Input(shape=(node_feat_dim,))
+    input_aux_features = Input(shape=(aux_feat_dim,))
     input_n2n = Input(shape=(None,), sparse=True)
     normalize = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1))
 
@@ -85,7 +81,7 @@ def create_drbc_model():
     node_features = LeakyReLU()(node_features)
     node_features = normalize(node_features)
 
-    n2n_features = DrBCRNN()([input_n2n, node_features])
+    n2n_features = DrBCRNN(units=128, repetitions=max_bp_iter, combine='gru')([input_n2n, node_features])
     n2n_features = Lambda(lambda x: tf.reduce_max(x, axis=-1), name='aggregate')(n2n_features)
     n2n_features = normalize(n2n_features)
 
@@ -114,8 +110,6 @@ class DataGenerator(Sequence):
         self.include_idx_map: bool = include_idx_map
         self.random_samples: bool = random_samples
         self.log_betweenness: bool = log_betweenness
-
-        self.gen_new_graphs()
 
     def __len__(self) -> int:
         return self.nb_batches
@@ -148,10 +142,6 @@ class DataGenerator(Sequence):
             g_list, id_list = self.graphs.Sample_Batch(self.graphs_per_batch)
             return self.get_batch(graphs=g_list, ids=id_list)
         return self.get_batch(graphs=[self.graphs.Get(index)], ids=[index])
-
-    def on_epoch_end(self):
-        self.clear()
-        self.gen_new_graphs()
 
     @staticmethod
     def gen_network(g):  # networkx2four
@@ -233,12 +223,13 @@ class BetLearn:
 
         # graph types: 'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'
         self.train_generator = DataGenerator(tag='Train', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=500, include_idx_map=False, random_samples=True, log_betweenness=True)
-        self.valid_generator = DataGenerator(tag='Valid', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=BATCH_SIZE, nb_batches=1, include_idx_map=True, random_samples=False, log_betweenness=False)
+        self.valid_generator = DataGenerator(tag='Valid', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=1, nb_batches=n_valid, include_idx_map=True, random_samples=False, log_betweenness=False)
 
         self.model = create_drbc_model()
         self.model.summary()
         self.model.compile(optimizer='adam',
                            loss=LossFunctionWrapper(pairwise_ranking_crossentropy_loss, reduction='none'))
+        print(f'Logging experiments at: `{self.experiment_path.absolute()}`')
 
     def predict(self, gid):
         x, y, idx_map = self.valid_generator[gid]
@@ -250,7 +241,7 @@ class BetLearn:
         return result_output
 
     def train(self):
-        """ functional API with model.fit doesn't support sparse tensors with the current implementation """
+        """ functional API with model.fit doesn't support sparse tensors with the current implementation => we write the training loop ourselves """
         callbacks = CallbackList([
             EvaluateCallback(self.valid_generator, prepend_str='val_'),
             CSVLogger(self.log_dir / 'history.csv'),
@@ -261,6 +252,10 @@ class BetLearn:
 
         callbacks.on_train_begin()
         for epoch in range(MAX_ITERATION):
+            if epoch % 5 == 0:
+                self.train_generator.gen_new_graphs()
+                self.valid_generator.gen_new_graphs()
+
             callbacks.on_epoch_begin(epoch)
             [c.on_train_begin() for c in callbacks]
             for batch, (x, y) in enumerate(self.train_generator):
