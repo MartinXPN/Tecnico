@@ -3,7 +3,7 @@ from BetLearn import BetLearn
 
 def main():
     btl = BetLearn()
-    btl.Train()
+    btl.train()
 
 
 if __name__ == "__main__":

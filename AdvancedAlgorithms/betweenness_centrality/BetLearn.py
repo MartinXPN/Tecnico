@@ -1,17 +1,19 @@
+import copy
 import os
-import pickle as cp
 import random
-import sys
-import time
+from datetime import datetime
+from pathlib import Path
 from typing import List
 
 import networkx as nx
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard, CSVLogger
 from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.models import Model
 from tensorflow.keras.utils import Sequence
 from tensorflow.python.keras.losses import LossFunctionWrapper
+from tensorflow.python.keras.callbacks import CallbackList
 from tqdm import tqdm
 
 import PrepareBatchGraph
@@ -96,11 +98,13 @@ def create_drbc_model():
 
 
 class DataGenerator(Sequence):
-    def __init__(self, graph_type: str, min_nodes: int, max_nodes: int, nb_graphs: int, graphs_per_batch: int, nb_batches: int, include_idx_map: bool = False, random_samples: bool = True, log_betweenness: bool = True):
+    def __init__(self, tag: str, graph_type: str, min_nodes: int, max_nodes: int, nb_graphs: int, graphs_per_batch: int, nb_batches: int,
+                 include_idx_map: bool = False, random_samples: bool = True, log_betweenness: bool = True):
         self.utils = utils.py_Utils()
         self.graphs = graph.py_GSet()
         self.count: int = 0
         self.betweenness: List[float] = []
+        self.tag: str = tag
         self.graph_type: str = graph_type
         self.min_nodes: int = min_nodes
         self.max_nodes: int = max_nodes
@@ -171,7 +175,7 @@ class DataGenerator(Sequence):
 
     def gen_new_graphs(self):
         self.clear()
-        for _ in tqdm(range(self.nb_graphs), desc='generating new graphs...'):
+        for _ in tqdm(range(self.nb_graphs), desc=f'{self.tag}: generating new graphs...'):
             g = self.gen_graph()
             t = self.count
             self.count += 1
@@ -187,22 +191,56 @@ class DataGenerator(Sequence):
         self.betweenness = []
 
 
+class EvaluateCallback(Callback):
+    def __init__(self, data_generator, prepend_str: str = 'val_'):
+        super().__init__()
+        self.data_generator = data_generator
+        self.prepend_str = prepend_str
+        self.metrics = metrics.py_Metrics()
+        self._supports_tf_logs = True
+
+    def on_epoch_end(self, epoch, logs=None):
+        super().on_epoch_end(epoch, logs)
+        logs = logs or {}
+        epoch_logs = {
+            f'{self.prepend_str}top0.01': [],
+            f'{self.prepend_str}top0.05': [],
+            f'{self.prepend_str}top0.1': [],
+            f'{self.prepend_str}kendal': [],
+        }
+        for gid, (x, y, idx_map) in enumerate(self.data_generator):
+            result = self.model.predict_on_batch(x=x).flatten()
+            betw_predict = [np.power(10, -pred_betweenness) if idx_map[i] >= 0 else 0
+                            for i, pred_betweenness in enumerate(result)]
+
+            betw_label = self.data_generator.betweenness[gid]
+            epoch_logs[f'{self.prepend_str}top0.01'].append(self.metrics.RankTopK(betw_label, betw_predict, 0.01))
+            epoch_logs[f'{self.prepend_str}top0.05'].append(self.metrics.RankTopK(betw_label, betw_predict, 0.05))
+            epoch_logs[f'{self.prepend_str}top0.1'].append(self.metrics.RankTopK(betw_label, betw_predict, 0.1))
+            epoch_logs[f'{self.prepend_str}kendal'].append(self.metrics.RankKendal(betw_label, betw_predict))
+        epoch_logs = {k: np.mean(val) for k, val in epoch_logs.items()}
+        logs.update(epoch_logs)
+
+
 class BetLearn:
 
     def __init__(self):
-        # init some parameters
-        self.g_type = 'powerlaw'  # 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'
-        self.metrics = metrics.py_Metrics()
+        self.experiment_path = Path('./experiments') / datetime.now().replace(microsecond=0).isoformat()
+        self.model_save_path = self.experiment_path / 'models/'
+        self.log_dir = self.experiment_path / 'logs/'
+        self.model_save_path.mkdir(parents=True, exist_ok=True)
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+
+        # graph types: 'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'
+        self.train_generator = DataGenerator(tag='Train', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=500, include_idx_map=False, random_samples=True, log_betweenness=True)
+        self.valid_generator = DataGenerator(tag='Valid', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=BATCH_SIZE, nb_batches=1, include_idx_map=True, random_samples=False, log_betweenness=False)
 
         self.model = create_drbc_model()
         self.model.summary()
         self.model.compile(optimizer='adam',
                            loss=LossFunctionWrapper(pairwise_ranking_crossentropy_loss, reduction='none'))
 
-        self.train_generator = DataGenerator(graph_type=self.g_type, min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=5000, include_idx_map=False, random_samples=True, log_betweenness=True)
-        self.valid_generator = DataGenerator(graph_type=self.g_type, min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=BATCH_SIZE, nb_batches=1, include_idx_map=True, random_samples=False, log_betweenness=False)
-
-    def Predict(self, gid):
+    def predict(self, gid):
         x, y, idx_map = self.valid_generator[gid]
         result = self.model.predict_on_batch(x=x).flatten()
 
@@ -211,98 +249,27 @@ class BetLearn:
                          for i, pred_betweenness in enumerate(result)]
         return result_output
 
-    def Fit(self):
-        x, y = self.train_generator[0]  # next batch
-        loss = self.model.train_on_batch(x=x, y=y)
-        return loss
+    def train(self):
+        """ functional API with model.fit doesn't support sparse tensors with the current implementation """
+        callbacks = CallbackList([
+            EvaluateCallback(self.valid_generator, prepend_str='val_'),
+            CSVLogger(self.log_dir / 'history.csv'),
+            TensorBoard(self.log_dir, profile_batch=0),
+            ModelCheckpoint(self.model_save_path / 'best.h5py', monitor='val_kendal', save_best_only=True, verbose=1, mode='max'),
+            EarlyStopping(monitor='val_kendal', patience=5, mode='max', restore_best_weights=True),
+        ], add_history=True, add_progbar=True, model=self.model, verbose=1, epochs=MAX_ITERATION, steps=len(self.train_generator))
 
-    def Train(self):
-        save_dir = './models'
-        VCFile = '%s/ValidValue.csv' % (save_dir)
-        f_out = open(VCFile, 'w')
-        for iter in range(MAX_ITERATION):
-            TrainLoss = self.Fit()
-            start = time.clock()
-            if iter and iter % 5000 == 0:
-                self.train_generator.on_epoch_end()
-                self.valid_generator.on_epoch_end()
-            if iter % 500 == 0:
-                if (iter == 0):
-                    N_start = start
-                else:
-                    N_start = N_end
-                frac_topk, frac_kendal = 0.0, 0.0
-                test_start = time.time()
-                for idx in range(n_valid):
-                    run_time, temp_topk, temp_kendal = self.Test(idx)
-                    frac_topk += temp_topk / n_valid
-                    frac_kendal += temp_kendal / n_valid
-                test_end = time.time()
-                f_out.write('%.6f, %.6f\n' % (frac_topk, frac_kendal))  # write vc into the file
-                f_out.flush()
-                print('\niter %d, Top0.01: %.6f, kendal: %.6f' % (iter, frac_topk, frac_kendal))
-                print('testing %d graphs time: %.2fs' % (n_valid, test_end - test_start))
-                N_end = time.clock()
-                print('500 iterations total time: %.2fs' % (N_end - N_start))
-                print('Training loss is %.4f' % TrainLoss)
-                sys.stdout.flush()
-                model_path = '%s/nrange_iter_%d_%d_%d.ckpt' % (save_dir, NUM_MIN, NUM_MAX, iter)
-                self.model.save(model_path)
-        f_out.close()
+        callbacks.on_train_begin()
+        for epoch in range(MAX_ITERATION):
+            callbacks.on_epoch_begin(epoch)
+            [c.on_train_begin() for c in callbacks]
+            for batch, (x, y) in enumerate(self.train_generator):
+                callbacks.on_train_batch_begin(batch)
+                logs = self.model.train_on_batch(x, y, return_dict=True)
+                callbacks.on_train_batch_end(batch, logs)
 
-    def Test(self, gid):
-        start = time.time()
-        betw_predict = self.Predict(gid)
-        end = time.time()
-        betw_label = self.valid_generator.betweenness[gid]
+            epoch_logs = copy.copy(logs)
+            callbacks.on_epoch_end(epoch, logs=epoch_logs)
 
-        run_time = end - start
-        topk = self.metrics.RankTopK(betw_label, betw_predict, 0.01)
-        kendal = self.metrics.RankKendal(betw_label, betw_predict)
-        return run_time, topk, kendal
-
-    def EvaluateSynData(self, data_test, model_file):  # test synthetic data
-        print('The best model is :%s' % (model_file))
-        sys.stdout.flush()
-        load_model(model_file)
-        n_test = 100
-        frac_run_time, frac_topk, frac_kendal = 0.0, 0.0, 0.0
-        self.ClearTestGraphs()
-        f = open(data_test, 'rb')
-        ValidData = cp.load(f)
-        TestGraphList = ValidData[0]
-        self.TestBetwList = ValidData[1]
-        for i in tqdm(range(n_test)):
-            g = TestGraphList[i]
-            self.InsertGraph(g, is_test=True)
-            run_time, topk, kendal = self.test(i)
-            frac_run_time += run_time / n_test
-            frac_topk += topk / n_test
-            frac_kendal += kendal / n_test
-        print('\nRun_time, Top1%, Kendall tau: %.6f, %.6f, %.6f' % (frac_run_time, frac_topk, frac_kendal))
-        return frac_run_time, frac_topk, frac_kendal
-
-    def EvaluateRealData(self, model_file, data_test, label_file):  # test real data
-        g = nx.read_weighted_edgelist(data_test)
-        sys.stdout.flush()
-        load_model(model_file)
-        betw_label = []
-        for line in open(label_file):
-            betw_label.append(float(line.strip().split()[1]))
-        self.TestBetwList.append(betw_label)
-        start = time.time()
-        self.InsertGraph(g, is_test=True)
-        end = time.time()
-        run_time = end - start
-        g_list = [self.TestSet.Get(0)]
-        start1 = time.time()
-        betw_predict = self.Predict(g_list)
-        end1 = time.time()
-        betw_label = self.TestBetwList[0]
-        run_time += end1 - start1
-        top001 = self.metrics.RankTopK(betw_label, betw_predict, 0.01)
-        top005 = self.metrics.RankTopK(betw_label, betw_predict, 0.05)
-        top01 = self.metrics.RankTopK(betw_label, betw_predict, 0.1)
-        kendal = self.metrics.RankKendal(betw_label, betw_predict)
-        self.ClearTestGraphs()
-        return top001, top005, top01, kendal, run_time
+        callbacks.on_train_end(copy.copy(epoch_logs))
+        print(self.model.history.history)
