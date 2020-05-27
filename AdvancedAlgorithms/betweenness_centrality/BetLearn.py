@@ -8,7 +8,7 @@ from typing import List
 import networkx as nx
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard, CSVLogger
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard
 from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import Sequence
@@ -72,18 +72,17 @@ def pairwise_ranking_crossentropy_loss(y_true, y_pred):
 
 
 def create_drbc_model():
-    input_node_features = Input(shape=(node_feat_dim,))
-    input_aux_features = Input(shape=(aux_feat_dim,))
-    input_n2n = Input(shape=(None,), sparse=True)
-    normalize = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1))
+    input_node_features = Input(shape=(node_feat_dim,), name='node_features')
+    input_aux_features = Input(shape=(aux_feat_dim,), name='aux_features')
+    input_n2n = Input(shape=(None,), sparse=True, name='n2n_sum')
 
     node_features = Dense(units=128)(input_node_features)
     node_features = LeakyReLU()(node_features)
-    node_features = normalize(node_features)
+    node_features = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1), name='normalize_node_features')(node_features)
 
     n2n_features = DrBCRNN(units=128, repetitions=max_bp_iter, combine='gru')([input_n2n, node_features])
     n2n_features = Lambda(lambda x: tf.reduce_max(x, axis=-1), name='aggregate')(n2n_features)
-    n2n_features = normalize(n2n_features)
+    n2n_features = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1), name='normalize_n2n')(n2n_features)
 
     all_features = Concatenate(axis=-1)([n2n_features, input_aux_features])
     top = Dense(64)(all_features)
@@ -244,7 +243,6 @@ class BetLearn:
         """ functional API with model.fit doesn't support sparse tensors with the current implementation => we write the training loop ourselves """
         callbacks = CallbackList([
             EvaluateCallback(self.valid_generator, prepend_str='val_'),
-            CSVLogger(self.log_dir / 'history.csv'),
             TensorBoard(self.log_dir, profile_batch=0),
             ModelCheckpoint(self.model_save_path / 'best.h5py', monitor='val_kendal', save_best_only=True, verbose=1, mode='max'),
             EarlyStopping(monitor='val_kendal', patience=5, mode='max', restore_best_weights=True),
