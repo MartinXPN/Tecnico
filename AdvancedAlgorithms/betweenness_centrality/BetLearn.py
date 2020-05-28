@@ -9,7 +9,7 @@ import networkx as nx
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard
-from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU
+from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU, LSTM, Attention
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import Sequence
 from tensorflow.python.keras.losses import LossFunctionWrapper
@@ -71,7 +71,7 @@ def pairwise_ranking_crossentropy_loss(y_true, y_pred):
     return loss
 
 
-def create_drbc_model():
+def create_drbc_model(aggregation: str = 'max', combine='gru'):
     input_node_features = Input(shape=(node_feat_dim,), name='node_features')
     input_aux_features = Input(shape=(aux_feat_dim,), name='aux_features')
     input_n2n = Input(shape=(None,), sparse=True, name='n2n_sum')
@@ -80,8 +80,15 @@ def create_drbc_model():
     node_features = LeakyReLU()(node_features)
     node_features = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1), name='normalize_node_features')(node_features)
 
-    n2n_features = DrBCRNN(units=128, repetitions=max_bp_iter, combine='gru')([input_n2n, node_features])
-    n2n_features = Lambda(lambda x: tf.reduce_max(x, axis=-1), name='aggregate')(n2n_features)
+    n2n_features = DrBCRNN(units=128, repetitions=max_bp_iter, combine=combine, return_sequences=aggregation is not None)([input_n2n, node_features])
+    if aggregation == 'max':        n2n_features = Lambda(lambda x: tf.reduce_max(x, axis=-1), name='aggregate')(n2n_features)
+    elif aggregation == 'min':      n2n_features = Lambda(lambda x: tf.reduce_min(x, axis=-1), name='aggregate')(n2n_features)
+    elif aggregation == 'sum':      n2n_features = Lambda(lambda x: tf.reduce_sum(x, axis=-1), name='aggregate')(n2n_features)
+    elif aggregation == 'mean':     n2n_features = Lambda(lambda x: tf.reduce_mean(x, axis=-1), name='aggregate')(n2n_features)
+    elif aggregation == 'lstm':
+        n2n_features = LSTM(units=128, return_sequences=True)(n2n_features)
+        n2n_features = Attention()([n2n_features, n2n_features, n2n_features])
+        n2n_features = Lambda(lambda x: tf.reduce_sum(x, axis=-1), name='aggregate')(n2n_features)
     n2n_features = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1), name='normalize_n2n')(n2n_features)
 
     all_features = Concatenate(axis=-1)([n2n_features, input_aux_features])
@@ -221,10 +228,10 @@ class BetLearn:
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # graph types: 'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'
-        self.train_generator = DataGenerator(tag='Train', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=500, include_idx_map=False, random_samples=True, log_betweenness=True)
+        self.train_generator = DataGenerator(tag='Train', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=50, include_idx_map=False, random_samples=True, log_betweenness=True)
         self.valid_generator = DataGenerator(tag='Valid', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=1, nb_batches=n_valid, include_idx_map=True, random_samples=False, log_betweenness=False)
 
-        self.model = create_drbc_model()
+        self.model = create_drbc_model(aggregation='lstm', combine='gru')
         self.model.summary()
         self.model.compile(optimizer='adam',
                            loss=LossFunctionWrapper(pairwise_ranking_crossentropy_loss, reduction='none'))

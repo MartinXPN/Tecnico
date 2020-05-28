@@ -1,6 +1,25 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Layer, GRU, Dense
+from tensorflow.keras.layers import Layer, GRU, Dense, Add, Lambda, Concatenate
+
+
+@tf.keras.utils.register_keras_serializable(package='drbc', name='GraphSage')
+class GraphSage(Layer):
+    def __init__(self, units=128, **kwargs):
+        super().__init__(**kwargs)
+        self.units = units
+        self.fc1 = Dense(units=units, activation='relu')
+        self.concat = Concatenate()
+        self.fc2 = Dense(units=units, activation='relu')
+
+    def call(self, inputs, **kwargs):
+        x = self.fc1(inputs)
+        x = self.concat([x, inputs])
+        x = self.fc2(x)
+        return x
+
+    def get_config(self):
+        return {'units': self.units}
 
 
 @tf.keras.utils.register_keras_serializable(package='drbc', name='DrBCRNN')
@@ -13,10 +32,10 @@ class DrBCRNN(Layer):
         self.return_sequences = return_sequences
 
         combine = combine.strip().lower()
-        if combine == 'gru':
-            self.combine = GRU(units=units, return_sequences=False)
-        else:
-            raise ValueError(f'Combine method `{combine}` is not implemented yet!')
+        if combine == 'graphsage':          self.combine = GraphSage(units=units, name='graphsage')
+        elif combine == 'structure2vec':    self.combine = Add(name='structure2vec')
+        elif combine == 'gru':              self.combine = GRU(units=units, return_sequences=False, name='gru')
+        else:                               raise ValueError(f'Combine method `{combine}` is not implemented yet!')
 
         self.node_linear = Dense(self.units)
 
@@ -27,7 +46,10 @@ class DrBCRNN(Layer):
             n2n_pool = tf.sparse.sparse_dense_matmul(n2n, states[rep])
             # print(n2n_pool)
             node_representations = self.node_linear(n2n_pool)
-            combined = self.combine(tf.expand_dims(node_representations, 1))
+            if self.combine_method == 'graphsage':          combined = self.combine(node_representations)
+            elif self.combine_method == 'structure2vec':    combined = self.combine([node_representations, message])
+            elif self.combine_method == 'gru':              combined = self.combine(tf.expand_dims(node_representations, 1))
+            else:                                           raise ValueError(f'Combine method `{self.combine_method}` is not implemented yet!')
             res = K.l2_normalize(combined, axis=1)
             states.append(res)
 
