@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Layer, GRU, Dense, Add, Lambda, Concatenate
+from tensorflow.keras.layers import Layer, GRU, Dense, Add, Concatenate
 
 
 @tf.keras.utils.register_keras_serializable(package='drbc', name='GraphSage')

@@ -30,29 +30,7 @@ np.random.seed(SEED)
 os.environ['PYTHONHASHSEED'] = str(SEED)
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
 
-
-BATCH_SIZE = 16
-max_bp_iter = 5  # neighbor propagation steps
-
-NUM_MIN = 100  # minimum training scale (node set size)
-NUM_MAX = 200  # maximum training scale (node set size)
-MAX_ITERATION = 10000  # training iterations
-n_train = 1000  # number of train graphs
-n_valid = 100  # number of validation graphs
 aggregatorID = 2  # how to aggregate node neighbors, 0:sum; 1:mean; 2:GCN(weighted sum)
-combineID = 1  # how to combine self embedding and neighbor embedding,
-# 0:structure2vec(add node feature and neighbor embedding)
-# 1:graphsage(concatenation);
-# 2:gru
-JK = 1  # layer aggregation,
-# #0: do not use each layer's embedding;
-# aggregate each layer's embedding with:
-# 1:max_pooling;
-# 2:min_pooling;
-# 3:mean_pooling;
-# 4:LSTM with attention
-node_feat_dim = 3  # initial node features, [Dc,1,1]
-aux_feat_dim = 4   # extra node features in the hidden layer in the decoder, [Dc,CI1,CI2,1]
 
 
 @tf.function
@@ -71,16 +49,24 @@ def pairwise_ranking_crossentropy_loss(y_true, y_pred):
     return loss
 
 
-def create_drbc_model(aggregation: str = 'max', combine='gru'):
-    input_node_features = Input(shape=(node_feat_dim,), name='node_features')
-    input_aux_features = Input(shape=(aux_feat_dim,), name='aux_features')
+def create_drbc_model(node_feature_dim=3, aux_feature_dim=4, rnn_repetitions=5, aggregation: str = 'max', combine='gru'):
+    """
+    :param node_feature_dim: initial node features, [Dc,1,1]
+    :param aux_feature_dim: extra node features in the hidden layer in the decoder, [Dc,CI1,CI2,1]
+    :param rnn_repetitions: how many loops are there in DrBCRNN
+    :param aggregation: how to aggregate sequences after DrBCRNN {min, max, sum, mean, lstm}
+    :param combine: how to combine in each iteration in DrBCRNN {structure2vec, graphsage, gru}
+    :return: DrBC tf.keras model
+    """
+    input_node_features = Input(shape=(node_feature_dim,), name='node_features')
+    input_aux_features = Input(shape=(aux_feature_dim,), name='aux_features')
     input_n2n = Input(shape=(None,), sparse=True, name='n2n_sum')
 
     node_features = Dense(units=128)(input_node_features)
     node_features = LeakyReLU()(node_features)
     node_features = Lambda(lambda x: tf.math.l2_normalize(x, axis=-1), name='normalize_node_features')(node_features)
 
-    n2n_features = DrBCRNN(units=128, repetitions=max_bp_iter, combine=combine, return_sequences=aggregation is not None)([input_n2n, node_features])
+    n2n_features = DrBCRNN(units=128, repetitions=rnn_repetitions, combine=combine, return_sequences=aggregation is not None)([input_n2n, node_features])
     if aggregation == 'max':        n2n_features = Lambda(lambda x: tf.reduce_max(x, axis=-1), name='aggregate')(n2n_features)
     elif aggregation == 'min':      n2n_features = Lambda(lambda x: tf.reduce_min(x, axis=-1), name='aggregate')(n2n_features)
     elif aggregation == 'sum':      n2n_features = Lambda(lambda x: tf.reduce_sum(x, axis=-1), name='aggregate')(n2n_features)
@@ -219,21 +205,32 @@ class EvaluateCallback(Callback):
 
 
 class BetLearn:
-
-    def __init__(self):
+    def __init__(self, min_nodes, max_nodes, nb_train_graphs, nb_valid_graphs, graphs_per_batch, nb_batches,
+                 graph_type='powerlaw', optimizer='adam', aggregation='lstm', combine='gru'):
+        """
+        :param min_nodes: minimum training scale (node set size)
+        :param max_nodes: maximum training scale (node set size)
+        :param nb_train_graphs: number of train graphs
+        :param nb_valid_graphs: number of validation graphs
+        :param graphs_per_batch: number of graphs sampled per batch
+        :param nb_batches: number of batches to process per each training epoch
+        :param graph_type: {'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'}
+        :param optimizer: any tf.keras supported optimizer
+        :param aggregation: how to aggregate sequences after DrBCRNN {min, max, sum, mean, lstm}
+        :param combine: how to combine in each iteration in DrBCRNN {structure2vec, graphsage, gru}
+        """
         self.experiment_path = Path('./experiments') / datetime.now().replace(microsecond=0).isoformat()
         self.model_save_path = self.experiment_path / 'models/'
         self.log_dir = self.experiment_path / 'logs/'
         self.model_save_path.mkdir(parents=True, exist_ok=True)
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
-        # graph types: 'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'
-        self.train_generator = DataGenerator(tag='Train', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_train, graphs_per_batch=BATCH_SIZE, nb_batches=50, include_idx_map=False, random_samples=True, log_betweenness=True)
-        self.valid_generator = DataGenerator(tag='Valid', graph_type='powerlaw', min_nodes=NUM_MIN, max_nodes=NUM_MAX, nb_graphs=n_valid, graphs_per_batch=1, nb_batches=n_valid, include_idx_map=True, random_samples=False, log_betweenness=False)
+        self.train_generator = DataGenerator(tag='Train', graph_type=graph_type, min_nodes=min_nodes, max_nodes=max_nodes, nb_graphs=nb_train_graphs, graphs_per_batch=graphs_per_batch, nb_batches=nb_batches, include_idx_map=False, random_samples=True, log_betweenness=True)
+        self.valid_generator = DataGenerator(tag='Valid', graph_type=graph_type, min_nodes=min_nodes, max_nodes=max_nodes, nb_graphs=nb_valid_graphs, graphs_per_batch=1, nb_batches=nb_valid_graphs, include_idx_map=True, random_samples=False, log_betweenness=False)
 
-        self.model = create_drbc_model(aggregation='lstm', combine='gru')
+        self.model = create_drbc_model(aggregation=aggregation, combine=combine)
         self.model.summary()
-        self.model.compile(optimizer='adam',
+        self.model.compile(optimizer=optimizer,
                            loss=LossFunctionWrapper(pairwise_ranking_crossentropy_loss, reduction='none'))
         print(f'Logging experiments at: `{self.experiment_path.absolute()}`')
 
@@ -246,17 +243,17 @@ class BetLearn:
                          for i, pred_betweenness in enumerate(result)]
         return result_output
 
-    def train(self):
+    def train(self, epochs):
         """ functional API with model.fit doesn't support sparse tensors with the current implementation => we write the training loop ourselves """
         callbacks = CallbackList([
             EvaluateCallback(self.valid_generator, prepend_str='val_'),
             TensorBoard(self.log_dir, profile_batch=0),
             ModelCheckpoint(self.model_save_path / 'best.h5py', monitor='val_kendal', save_best_only=True, verbose=1, mode='max'),
             EarlyStopping(monitor='val_kendal', patience=5, mode='max', restore_best_weights=True),
-        ], add_history=True, add_progbar=True, model=self.model, verbose=1, epochs=MAX_ITERATION, steps=len(self.train_generator))
+        ], add_history=True, add_progbar=True, model=self.model, verbose=1, epochs=epochs, steps=len(self.train_generator))
 
         callbacks.on_train_begin()
-        for epoch in range(MAX_ITERATION):
+        for epoch in range(epochs):
             if epoch % 5 == 0:
                 self.train_generator.gen_new_graphs()
                 self.valid_generator.gen_new_graphs()
