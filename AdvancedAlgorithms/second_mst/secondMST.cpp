@@ -56,7 +56,7 @@ public:
         curId = -1;
         for( size_t v = size-1; v >= 1; --v )
             tree[v] = max( tree[2 * v], tree[2 * v + 1] );
-        dba(label2id);
+//        dba(label2id);
     }
 
     void add(size_t label, int val) {
@@ -167,7 +167,7 @@ int main() {
     freopen("output.out", "w", stdout);
     int n;
     cin >> n;
-    db(n);
+//    db(n);
 
     int MST = 0;
     vector< vector <pair <int, int> > > g(n);    /// undirected weighted graph with n vertices
@@ -179,8 +179,8 @@ int main() {
         g[b].push_back( {a, w} );
         MST += w;
     }
-    db2d(g);
-    db(MST);
+//    db2d(g);
+//    db(MST);
 
 
     HeavyLight <int> hl(g);
@@ -188,7 +188,7 @@ int main() {
 
     int q;
     cin >> q;
-    db(q);
+//    db(q);
     while( q-- ) {
         int a, b, w;
         cin >> a >> b >> w;
