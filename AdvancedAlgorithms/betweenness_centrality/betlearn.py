@@ -8,7 +8,7 @@ from typing import List
 import networkx as nx
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
 from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU, LSTM, Attention
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import Sequence
@@ -86,8 +86,8 @@ def create_drbc_model(node_feature_dim=3, aux_feature_dim=4, rnn_repetitions=5, 
 
 
 class DataGenerator(Sequence):
-    def __init__(self, tag: str, graph_type: str, min_nodes: int, max_nodes: int, nb_graphs: int, graphs_per_batch: int, nb_batches: int,
-                 include_idx_map: bool = False, random_samples: bool = True, log_betweenness: bool = True):
+    def __init__(self, tag: str = 'generator', graph_type: str = '', min_nodes: int = 0, max_nodes: int = 0, nb_graphs: int = 1, graphs_per_batch: int = 1, nb_batches: int = 1,
+                 include_idx_map: bool = False, random_samples: bool = True, log_betweenness: bool = True, compute_betweenness: bool = True):
         self.utils = utils.py_Utils()
         self.graphs = graph.py_GSet()
         self.count: int = 0
@@ -102,6 +102,7 @@ class DataGenerator(Sequence):
         self.include_idx_map: bool = include_idx_map
         self.random_samples: bool = random_samples
         self.log_betweenness: bool = log_betweenness
+        self.compute_betweenness = compute_betweenness
 
     def __len__(self) -> int:
         return self.nb_batches
@@ -155,17 +156,22 @@ class DataGenerator(Sequence):
         elif self.graph_type == 'powerlaw':         return nx.powerlaw_cluster_graph(n=cur_n, m=4, p=0.05)
         raise ValueError(f'{self.graph_type} graph type is not supported yet')
 
+    def add_graph(self, g):
+        t = self.count
+        self.count += 1
+        net = self.gen_network(g)
+        self.graphs.InsertGraph(t, net)
+
+        if self.compute_betweenness:
+            bc = self.utils.Betweenness(net)
+            bc_log = self.utils.bc_log
+            self.betweenness.append(bc_log if self.log_betweenness else bc)
+
     def gen_new_graphs(self):
         self.clear()
         for _ in tqdm(range(self.nb_graphs), desc=f'{self.tag}: generating new graphs...'):
             g = self.gen_graph()
-            t = self.count
-            self.count += 1
-            self.graphs.InsertGraph(t, self.gen_network(g))
-
-            bc = self.utils.Betweenness(self.gen_network(g))
-            bc_log = self.utils.bc_log
-            self.betweenness.append(bc_log if self.log_betweenness else bc)
+            self.add_graph(g)
 
     def clear(self):
         self.count = 0
@@ -250,6 +256,7 @@ class BetLearn:
             TensorBoard(self.log_dir, profile_batch=0),
             ModelCheckpoint(self.model_save_path / 'best.h5py', monitor='val_kendal', save_best_only=True, verbose=1, mode='max'),
             EarlyStopping(monitor='val_kendal', patience=5, mode='max', restore_best_weights=True),
+            ReduceLROnPlateau(monitor='val_kendal', patience=2, factor=0.5, mode='max'),
         ], add_history=True, add_progbar=True, model=self.model, verbose=1, epochs=epochs, steps=len(self.train_generator))
 
         callbacks.on_train_begin()
@@ -267,6 +274,8 @@ class BetLearn:
 
             epoch_logs = copy.copy(logs)
             callbacks.on_epoch_end(epoch, logs=epoch_logs)
+            if self.model.stop_training:
+                break
 
         callbacks.on_train_end(copy.copy(epoch_logs))
         print(self.model.history.history)

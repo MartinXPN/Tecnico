@@ -1,8 +1,10 @@
 # DrBC
-This is a TensorFlow implementation of DrBC, as described in our paper:
+This is a TensorFlow 2.x implementation of DrBC, as described in the paper:
 
 Fan, Changjun and Zeng, Li and Ding, Yuhui and Chen, Muhao and Sun, Yizhou and Liu, Zhong[[Learning to Identify High Betweenness Centrality Nodes from Scratch: A Novel Graph Neural Network Approach]](http://arxiv.org/abs/1905.10418) (CIKM 2019)
 
+
+Original implementation: https://github.com/FFrankyy/DrBC/
 ![](./visualize/Figure_demo.jpg "Demo")
 
 The code folder is organized as follows:
@@ -59,6 +61,10 @@ https://drive.google.com/file/d/1nh9XRyrqtKsaBDpLJri-SotpU3f713SX/view?usp=shari
 ```
 The model to obtain the results in the paper is in the fold './models/'
 
+To run the evaluation and get the results
+```shell script
+predict.py real --model_path experiments/<DATE>/models/best.h5py --data_test Data/Real/amazon.txt --label_file Data/Real/exact_bc/amazon.txt
+```
 # 4.Baselines implementations
 For RK and k-BC, we use the following implementations:
 ```

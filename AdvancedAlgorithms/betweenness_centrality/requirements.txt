@@ -5,3 +5,4 @@ numpy
 pandas
 tqdm
 tensorflow>=2.3.0 # Currently using tf-nightly
+fire>=0.3.1
