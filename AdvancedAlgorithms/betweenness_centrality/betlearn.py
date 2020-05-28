@@ -214,7 +214,7 @@ class BetLearn:
         :param nb_valid_graphs: number of validation graphs
         :param graphs_per_batch: number of graphs sampled per batch
         :param nb_batches: number of batches to process per each training epoch
-        :param graph_type: {'powerlaw', 'erdos_renyi', 'powerlaw', 'small-world', 'barabasi_albert'}
+        :param graph_type: {powerlaw, erdos_renyi, powerlaw, small-world, barabasi_albert}
         :param optimizer: any tf.keras supported optimizer
         :param aggregation: how to aggregate sequences after DrBCRNN {min, max, sum, mean, lstm}
         :param combine: how to combine in each iteration in DrBCRNN {structure2vec, graphsage, gru}
