@@ -33,7 +33,7 @@ def evaluate_synthetic_data(data_test, model_path):
 
     res = {}
     evaluate.on_epoch_end(0, res)
-    print(res)
+    return res
 
 
 def evaluate_real_data(model_path, data_test, label_file):
