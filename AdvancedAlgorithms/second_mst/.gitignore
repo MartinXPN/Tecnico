@@ -1,0 +1,9 @@
+# Ignore input/output files and the generated executable
+input.in
+output.out
+MST
+
+# Ignore the cmake build directories
+cmake-build/
+cmake-build-debug/
+cmake-build-release/

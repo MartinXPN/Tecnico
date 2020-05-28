@@ -60,7 +60,7 @@ public:
     }
 
     void add(size_t label, int val) {
-        printf( "add( %ld, %d)\n", label, val );    fflush(stdout);
+//        printf( "add( %ld, %d)\n", label, val );    fflush(stdout);
         assert(0 <= curId && curId <= size);
         assert(0 <= label && label < label2id.size());
         label2id[label] = curId;
@@ -101,7 +101,7 @@ private:
 
 
     size_t dfs(int v) {
-        printf("dfs( %d )\n", v);   fflush(stdout);
+//        printf("dfs( %d )\n", v);   fflush(stdout);
         size_t size = 1;
         size_t maxSize = 0;
         for (auto [to, w] : g[v]) {
@@ -163,7 +163,8 @@ public:
 
 
 int main() {
-    freopen("sample.in", "r", stdin);
+    freopen("input.in", "r", stdin);
+    freopen("output.out", "w", stdout);
     int n;
     cin >> n;
     db(n);
@@ -183,7 +184,7 @@ int main() {
 
 
     HeavyLight <int> hl(g);
-    cout << hl << endl;
+//    cout << hl << endl;
 
     int q;
     cin >> q;
