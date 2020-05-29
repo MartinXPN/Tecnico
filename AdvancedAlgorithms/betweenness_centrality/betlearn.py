@@ -187,9 +187,7 @@ class EvaluateCallback(Callback):
         self.metrics = metrics.py_Metrics()
         self._supports_tf_logs = True
 
-    def on_epoch_end(self, epoch, logs=None):
-        super().on_epoch_end(epoch, logs)
-        logs = logs or {}
+    def evaluate(self):
         epoch_logs = {
             f'{self.prepend_str}top0.01': [],
             f'{self.prepend_str}top0.05': [],
@@ -206,8 +204,12 @@ class EvaluateCallback(Callback):
             epoch_logs[f'{self.prepend_str}top0.05'].append(self.metrics.RankTopK(betw_label, betw_predict, 0.05))
             epoch_logs[f'{self.prepend_str}top0.1'].append(self.metrics.RankTopK(betw_label, betw_predict, 0.1))
             epoch_logs[f'{self.prepend_str}kendal'].append(self.metrics.RankKendal(betw_label, betw_predict))
-        epoch_logs = {k: np.mean(val) for k, val in epoch_logs.items()}
-        logs.update(epoch_logs)
+        return {k: np.mean(val) for k, val in epoch_logs.items()}
+
+    def on_epoch_end(self, epoch, logs=None):
+        super().on_epoch_end(epoch, logs)
+        logs = logs or {}
+        logs.update(self.evaluate())
 
 
 class BetLearn:
