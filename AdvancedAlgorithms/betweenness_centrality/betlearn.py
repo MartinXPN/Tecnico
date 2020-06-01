@@ -7,6 +7,7 @@ from typing import List
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, TensorBoard, ReduceLROnPlateau
 from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU, LSTM, Attention
@@ -24,9 +25,9 @@ from layers import DrBCRNN
 
 # For reproducibility
 SEED = 42
-tf.random.set_seed(SEED)
 random.seed(SEED)
 np.random.seed(SEED)
+tf.random.set_seed(SEED)
 os.environ['PYTHONHASHSEED'] = str(SEED)
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
 
@@ -276,6 +277,7 @@ class BetLearn:
 
             epoch_logs = copy.copy(logs)
             callbacks.on_epoch_end(epoch, logs=epoch_logs)
+            pd.DataFrame(self.model.history.history).to_csv(self.log_dir / 'history.csv', index=False)
             if self.model.stop_training:
                 break
 
