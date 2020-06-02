@@ -32,7 +32,6 @@ cdef class py_Utils:
         deref(inner_Graph).adj_list = _g.adj_list
         return deref(self.inner_Utils).Betweenness(inner_Graph)
 
-
     @property
     def bc_log(self):
         return deref(self.inner_Utils).bc_log

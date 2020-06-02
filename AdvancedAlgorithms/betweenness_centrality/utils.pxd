@@ -9,7 +9,6 @@ cdef extern from "./src/lib/utils.h":
     cdef cppclass Utils:
 
         Utils()
-
         vector[double] Betweenness_Batch(vector[shared_ptr[Graph]] graph_list)
         vector[double] Betweenness(shared_ptr[Graph] graph)
         vector[double] convertToLog(vector[double] CB)

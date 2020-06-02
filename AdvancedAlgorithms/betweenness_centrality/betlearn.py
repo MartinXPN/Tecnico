@@ -13,7 +13,6 @@ from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping,
 from tensorflow.keras.layers import Input, Lambda, Concatenate, Dense, LeakyReLU, LSTM, Attention
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import Sequence
-from tensorflow.python.keras.losses import LossFunctionWrapper
 from tensorflow.python.keras.callbacks import CallbackList
 from tqdm import tqdm
 
@@ -34,7 +33,6 @@ os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
 aggregatorID = 2  # how to aggregate node neighbors, 0:sum; 1:mean; 2:GCN(weighted sum)
 
 
-@tf.function
 def pairwise_ranking_crossentropy_loss(y_true, y_pred):
     pred_betweenness = y_pred
     target_betweenness = tf.slice(y_true, begin=(0, 0), size=(-1, 1))
@@ -43,14 +41,11 @@ def pairwise_ranking_crossentropy_loss(y_true, y_pred):
 
     labels = tf.nn.embedding_lookup(target_betweenness, src_ids) - tf.nn.embedding_lookup(target_betweenness, tgt_ids)
     preds = tf.nn.embedding_lookup(pred_betweenness, src_ids) - tf.nn.embedding_lookup(pred_betweenness, tgt_ids)
-
-    loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=preds, labels=tf.sigmoid(labels))
-    loss = tf.reduce_sum(loss, axis=-1)
-    loss = tf.reduce_mean(loss)
-    return loss
+    return tf.nn.sigmoid_cross_entropy_with_logits(logits=preds, labels=tf.sigmoid(labels))
 
 
-def create_drbc_model(node_feature_dim=3, aux_feature_dim=4, rnn_repetitions=5, aggregation: str = 'max', combine='gru'):
+def create_drbc_model(node_feature_dim=3, aux_feature_dim=4, rnn_repetitions=5,
+                      aggregation: str = 'max', combine='gru'):
     """
     :param node_feature_dim: initial node features, [Dc,1,1]
     :param aux_feature_dim: extra node features in the hidden layer in the decoder, [Dc,CI1,CI2,1]
@@ -87,8 +82,11 @@ def create_drbc_model(node_feature_dim=3, aux_feature_dim=4, rnn_repetitions=5, 
 
 
 class DataGenerator(Sequence):
-    def __init__(self, tag: str = 'generator', graph_type: str = '', min_nodes: int = 0, max_nodes: int = 0, nb_graphs: int = 1, graphs_per_batch: int = 1, nb_batches: int = 1,
-                 include_idx_map: bool = False, random_samples: bool = True, log_betweenness: bool = True, compute_betweenness: bool = True):
+    def __init__(self, tag: str = 'generator', graph_type: str = '',
+                 min_nodes: int = 0, max_nodes: int = 0,
+                 nb_graphs: int = 1, graphs_per_batch: int = 1, nb_batches: int = 1,
+                 include_idx_map: bool = False, random_samples: bool = True,
+                 log_betweenness: bool = True, compute_betweenness: bool = True):
         self.utils = utils.py_Utils()
         self.graphs = graph.py_GSet()
         self.count: int = 0
@@ -238,9 +236,8 @@ class BetLearn:
         self.valid_generator = DataGenerator(tag='Valid', graph_type=graph_type, min_nodes=min_nodes, max_nodes=max_nodes, nb_graphs=nb_valid_graphs, graphs_per_batch=1, nb_batches=nb_valid_graphs, include_idx_map=True, random_samples=False, log_betweenness=False)
 
         self.model = create_drbc_model(aggregation=aggregation, combine=combine)
+        self.model.compile(optimizer=optimizer, loss=pairwise_ranking_crossentropy_loss)
         self.model.summary()
-        self.model.compile(optimizer=optimizer,
-                           loss=LossFunctionWrapper(pairwise_ranking_crossentropy_loss, reduction='none'))
         print(f'Logging experiments at: `{self.experiment_path.absolute()}`')
 
     def predict(self, gid):
@@ -253,14 +250,19 @@ class BetLearn:
         return result_output
 
     def train(self, epochs):
-        """ functional API with model.fit doesn't support sparse tensors with the current implementation => we write the training loop ourselves """
+        """
+        functional API with model.fit doesn't support sparse tensors with the current implementation =>
+        we write the training loop ourselves
+        """
         callbacks = CallbackList([
             EvaluateCallback(self.valid_generator, prepend_str='val_'),
             TensorBoard(self.log_dir, profile_batch=0),
             ModelCheckpoint(self.model_save_path / 'best.h5py', monitor='val_kendal', save_best_only=True, verbose=1, mode='max'),
             EarlyStopping(monitor='val_kendal', patience=5, mode='max', restore_best_weights=True),
             ReduceLROnPlateau(monitor='val_kendal', patience=2, factor=0.5, mode='max'),
-        ], add_history=True, add_progbar=True, model=self.model, verbose=1, epochs=epochs, steps=len(self.train_generator))
+        ],  add_history=True, add_progbar=True, verbose=1,
+            model=self.model,
+            epochs=epochs, steps=len(self.train_generator))
 
         callbacks.on_train_begin()
         for epoch in range(epochs):
