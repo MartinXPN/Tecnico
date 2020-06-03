@@ -1,0 +1,66 @@
+4. Adding the option "class_weight" in SVM functions improved sligtly the performance of 
+the models, as was expected since the datasets are unbalanced.
+
+5. In order to obtain the "best" combination of hyperparamenters the method of 
+grid searching was applied. The model was trained using the train set for 
+every combination of (kernel, gamma, degree, C) and tested using the development set.
+The set of hyperparameters that showed higher unweighted average recall was then used
+to train the final model using both the train and development sets.
+
+The kernels considered were {linear, rbf, poly, sigmoid}, gamma = {10^-3, 10^-2, ..., 10^3},
+degree = {2, 3,..., 5} and C = {10^-3, 10^-2, ..., 10^3}. This gives a total of 
+7*7*3 + 7*7*4 = 392 combinations.
+
+The values chosen for gamma, C and degree are typical values used in SVM training. If high
+performance results come from near the edges of the regions defined by these combinations,
+further search in that direction should be performed.
+
+For the eGeMAPS:
+- The best results were for kernel = sigmoid, C = 10.0, gamma = 0.001
+- After this a smaller search grid was applied which lead to decide that kernel = sigmoid,
+C = 10.8, gamma = 0.0008 lead to slightly better results.
+
+- Sigmoid, linear and poly gave results more similar in both sets	
+- Smaller values of gamma prove to have better results
+- C arround the value of 10 showed to be better, improving significatly as C goes up till that point.
+- Rbf showed very different results in training set perfectly fitting it while having a worse
+results in the development set. 
+
+train - accuracy:  0.7394366197183099 prf: (0.7411751223123842, 0.7517245414991462, 0.7370880317774204, None)
+dev - accuracy:  0.6975354742345033 prf: (0.7012160545092472, 0.7170289052416636, 0.6929290355459294, None)
+
+For the IS-11:
+- Sigmoid, linear and poly gave results more similar in both sets
+- rbf showed very different results in training set perfectly fitting it while having a worse
+- Here the training with linear kernel was significantly faster (2 seconds vs 2 minutes for the other kernels).
+This difference wasn't felt in the previous feature set as it already had a faster training time.
+- Linear showed better results overall
+- Better results were for linear kernel with C = 10^-3
+
+Since the results fell on a boundary region, further searching was done in that region.
+- Performance increased with an increase in C till C = 10^-4
+- After this the combination of linear kernel with a value of C = 10^4 were chosen as 
+the "best" combination of hyperparameters. 
+
+train - accuracy:  0.8680014831294031 prf: (0.8640318294493499, 0.8791920206659013, 0.8658825225370197, None)
+dev - accuracy:  0.731142643764003 prf: (0.7135774728468999, 0.7229272215907996, 0.716632414561769, None)
+
+- Results were practically the same, but the UAR is higher for the IS-11 feature set. This result
+is not expected considering the baseline refered in the paper [1] that introduces the eGeMAPS feature
+set as there it showed a better performance than the IS-11.
+- The results for the IS-11 are better than the baseline introduced in the paper [2].
+- The results for the eGeMAPS features are impresive given how much smaller the feature pool (minimalistic) is
+compared to the other.
+- eGeMAPS is a feature set that is the result of long of feature engineering work.
+- Dimensionality is smaller which is good because the number of samples is small.
+- Dimensionality curse may afect the performance of the classifiers.
+- Probably applying a dimensionality reduction tecnique such as PCA or getting more training
+data could improve the perfomance of the classifier, especially the one for IS-11.
+
+6. The final models were trained using both training and development sets. Before the training
+the data was scaled by standardization using the StandardScaling class. The value for the used
+hyperparameters was already refered along with an explanation on the procedure.
+
+
+[1] https://sail.usc.edu/publications/files/eyben-preprinttaffc-2015.pdf as of 08/05/2020
+[2] https://www.isca-speech.org/archive/archive_papers/interspeech_2011/i11_3301.pdf as of 08/05/2020
