@@ -1,0 +1,1 @@
+SHA256(grades/inputs/grades.txt)= 352ed4165997dcbf10409b728e5db19f3d78d3c6fa37c75bcfcae0fa208e73c3
