@@ -1,0 +1,76 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "link"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "document"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "URL"
+                }
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "substring"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Identifier",
+                "name": "e"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "document"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "write"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "link"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceType": "script"
+}

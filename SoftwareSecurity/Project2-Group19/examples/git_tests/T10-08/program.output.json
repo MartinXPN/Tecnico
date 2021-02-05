@@ -1,0 +1,15 @@
+[
+  {
+    "vulnerability": "Test",
+    "source": [
+      "sourceX",
+      "sourceY"
+    ],
+    "sanitizer": [
+      "sanitizerX"
+    ],
+    "sink": [
+      "document.innerHTML"
+    ]
+  }
+]

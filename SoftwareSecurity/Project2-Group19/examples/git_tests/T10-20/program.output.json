@@ -1,0 +1,22 @@
+[
+  {
+    "vulnerability": "Source Input",
+    "source": [
+      "input"
+    ],
+    "sanitizer": [],
+    "sink": [
+      "sink"
+    ]
+  },
+  {
+    "vulnerability": "Source Input",
+    "source": [
+      "source"
+    ],
+    "sanitizer": [],
+    "sink": [
+      "sink"
+    ]
+  }
+]

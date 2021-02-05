@@ -1,0 +1,13 @@
+[
+  {
+    "vulnerability": "Source Input",
+    "source": [
+      "readbyte",
+      "readline"
+    ],
+    "sanitizer": [],
+    "sink": [
+      "exec"
+    ]
+  }
+]

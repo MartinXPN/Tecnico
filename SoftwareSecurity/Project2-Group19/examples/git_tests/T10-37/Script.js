@@ -1,0 +1,2 @@
+sink = a;
+sink(source());

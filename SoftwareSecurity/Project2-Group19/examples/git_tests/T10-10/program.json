@@ -1,0 +1,170 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "pos"
+          },
+          "init": {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "document"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "URL"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "indexOf"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value": "name=",
+                  "raw": "\"name=\""
+                }
+              ]
+            },
+            "right": {
+              "type": "Literal",
+              "value": 5,
+              "raw": "5"
+            }
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "name"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "Identifier",
+                  "name": "document"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "URL"
+                }
+              },
+              "property": {
+                "type": "Identifier",
+                "name": "substring"
+              }
+            },
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "pos"
+              },
+              {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": {
+                  "type": "MemberExpression",
+                  "computed": false,
+                  "object": {
+                    "type": "Identifier",
+                    "name": "document"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "URL"
+                  }
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "length"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "sanitizedName"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "encodeURI"
+            },
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "name"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "var"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+            "type": "Identifier",
+            "name": "document"
+          },
+          "property": {
+            "type": "Identifier",
+            "name": "write"
+          }
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "sanitizedName"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceType": "script"
+}

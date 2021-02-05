@@ -1,0 +1,12 @@
+[
+  {
+    "vulnerability": "Source Input",
+    "source": [
+      "document.URL"
+    ],
+    "sanitizer": [],
+    "sink": [
+      "document.write"
+    ]
+  }
+]

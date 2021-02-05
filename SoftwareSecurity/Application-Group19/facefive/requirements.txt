@@ -1,0 +1,7 @@
+Flask
+flask_mysqldb
+werkzeug
+gunicorn>=20.0.4
+passlib>=1.7.4
+flask_wtf
+requests

@@ -1,0 +1,37 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "link"
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "readline"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "exec"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "link"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceType": "script"
+}

@@ -1,0 +1,66 @@
+{
+  "type": "Program",
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "link"
+          },
+          "init": {
+            "type": "CallExpression",
+            "callee": {
+              "type": "Identifier",
+              "name": "readline"
+            },
+            "arguments": []
+          }
+        }
+      ],
+      "kind": "let"
+    },
+    {
+      "type": "BlockStatement",
+      "body": [
+        {
+          "type": "VariableDeclaration",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "Identifier",
+                "name": "link"
+              },
+              "init": {
+                "type": "Literal",
+                "value": "Not Tainted",
+                "raw": "\"Not Tainted\""
+              }
+            }
+          ],
+          "kind": "let"
+        }
+      ]
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": {
+          "type": "Identifier",
+          "name": "exec"
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "link"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceType": "script"
+}

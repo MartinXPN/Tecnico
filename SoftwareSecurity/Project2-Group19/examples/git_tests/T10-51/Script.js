@@ -1,0 +1,2 @@
+link = readline;
+exec(link);

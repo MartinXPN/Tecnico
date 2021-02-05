@@ -1,0 +1,2 @@
+a = sanitize();
+sink(a);
